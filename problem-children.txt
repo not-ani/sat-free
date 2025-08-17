@@ -1,0 +1,408 @@
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 36ab4122
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 46f68129
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] e1391dd6
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "prompt"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 43926bd9
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 3f5398a6
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 000259aa
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 90eed2e5
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 7ac5d686
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 1dcea480
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 566759ef
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] 3563d76d
+[
+  {
+    "code": "invalid_union",
+    "errors": [
+      [
+        {
+          "code": "invalid_union",
+          "errors": [],
+          "note": "No matching discriminator",
+          "discriminator": "type",
+          "path": [
+            "type"
+          ],
+          "message": "Invalid input"
+        }
+      ],
+      [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "answer",
+            "correct_choice"
+          ],
+          "message": "Invalid input: expected string, received undefined"
+        }
+      ]
+    ],
+    "path": [
+      "question_data"
+    ],
+    "message": "Invalid input"
+  }
+] f7e626b2
+12 failed 36ab4122, 46f68129, e1391dd6, 43926bd9, 3f5398a6, 000259aa, 90eed2e5, 7ac5d686, 1dcea480, 566759ef, 3563d76d, f7e626b2
