@@ -94,7 +94,6 @@ export const importQuestionBatch = action({
       } catch (error) {
         const errorMsg = `Failed to import question ${question.questionId}: ${error instanceof Error ? error.message : String(error)}`;
         errors.push(errorMsg);
-        console.error(errorMsg);
       }
     }
 

@@ -44,9 +44,7 @@ export const addNumber = mutation({
     //// Mutations can also read from the database like queries.
     //// See https://docs.convex.dev/database/writing-data.
 
-    const id = await ctx.db.insert('numbers', { value: args.value });
-
-    console.log('Added new document with id:', id);
+    const _id = await ctx.db.insert('numbers', { value: args.value });
     // Optionally, return a value from your mutation.
     // return id;
   },
@@ -68,10 +66,9 @@ export const myAction = action({
     // const data = await response.json();
 
     //// Query data by running Convex queries.
-    const data = await ctx.runQuery(api.myFunctions.listNumbers, {
+    const _data = await ctx.runQuery(api.myFunctions.listNumbers, {
       count: 10,
     });
-    console.log(data);
 
     //// Write data by running Convex mutations.
     await ctx.runMutation(api.myFunctions.addNumber, {

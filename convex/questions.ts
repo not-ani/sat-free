@@ -242,7 +242,9 @@ export const getByQuestionId = query({
       .query('questions')
       .withIndex('by_questionId', (q) => q.eq('questionId', args.questionId))
       .unique();
-    if (!doc) return null;
+    if (!doc) {
+      return null;
+    }
     return {
       _id: doc._id,
       questionId: doc.questionId,

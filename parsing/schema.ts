@@ -1,10 +1,7 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { z } from 'zod/v4';
-import {
-  IbnQuestionDataArraySchema,
-  IbnQuestionItemSchema,
-} from '@/render/ibn/schema';
+import { IbnQuestionItemSchema } from '@/render/ibn/schema';
 import { QuestionDataSchema } from '@/render/id/schema';
 
 const schema = z.object({
@@ -33,17 +30,14 @@ function prase() {
   // file contains an array of objects
   const data = JSON.parse(file);
   //parse each object in the array
-  const parsed = (data as Array<unknown>).map((raw: unknown) => {
+  const parsed = (data as unknown[]).map((raw: unknown) => {
     const parsed = schema.safeParse(raw);
     if (!parsed.success) {
-      console.error(parsed.error.message + ' ' + raw.questionId);
       failed.push(raw.questionId as string);
     }
     return parsed.data;
   });
-  console.log(failed.length + ' failed ' + failed.join(', '));
   return parsed;
 }
 
-const parsed = prase();
-console.log(parsed.length);
+const _parsed = prase();

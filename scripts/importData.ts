@@ -1,10 +1,10 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ConvexHttpClient } from 'convex/browser';
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
 import { api } from '../convex/_generated/api';
 
 // Type definitions matching the raw data structure
-interface RawQuestion {
+type RawQuestion = {
   updateDate: number;
   pPcc: string;
   questionId: string;
@@ -20,10 +20,10 @@ interface RawQuestion {
   primary_class_cd: string;
   difficulty: string;
   question_data: unknown;
-}
+};
 
 // Processed question structure
-interface ProcessedQuestion {
+type ProcessedQuestion = {
   questionId: string;
   score_band_range: number;
   skill: string;
@@ -36,7 +36,7 @@ interface ProcessedQuestion {
   question_data: unknown;
   updateDate: number;
   createDate: number;
-}
+};
 
 // Type definitions matching schema
 type Difficulty = 'Easy' | 'Medium' | 'Hard';
@@ -117,12 +117,9 @@ async function importQuestions() {
   try {
     // Read the normalized JSON file
     const filePath = join(process.cwd(), 'questions_data_english.json');
-    console.log(`Reading file: ${filePath}`);
 
     const fileContent = readFileSync(filePath, 'utf8');
     const rawQuestions: RawQuestion[] = JSON.parse(fileContent);
-
-    console.log(`Found ${rawQuestions.length} questions to process`);
 
     // Process questions locally
     const processedQuestions: ProcessedQuestion[] = [];
@@ -134,20 +131,13 @@ async function importQuestions() {
         processedQuestions.push(processed);
 
         if ((i + 1) % 1000 === 0) {
-          console.log(`Processed ${i + 1}/${rawQuestions.length} questions`);
         }
       } catch (error) {
         const errorMsg = `Failed to process question ${rawQuestions[i].questionId}: ${error instanceof Error ? error.message : String(error)}`;
         errors.push(errorMsg);
-        console.error(errorMsg);
       }
     }
-
-    console.log(
-      `Successfully processed ${processedQuestions.length} questions`
-    );
     if (errors.length > 0) {
-      console.warn(`${errors.length} questions failed to process`);
     }
 
     // Initialize Convex client
@@ -156,8 +146,6 @@ async function importQuestions() {
     if (!convexUrl) {
       throw new Error('CONVEX_URL environment variable is required');
     }
-
-    console.log('Connecting to Convex...');
     const client = new ConvexHttpClient(convexUrl);
 
     // Clear existing questions first (optional - commented out since we now skip duplicates)
@@ -175,10 +163,6 @@ async function importQuestions() {
       const batch = processedQuestions.slice(i, i + batchSize);
 
       try {
-        console.log(
-          `Importing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(processedQuestions.length / batchSize)} (${batch.length} questions)`
-        );
-
         const result = await client.action(
           api.importQuestions.importQuestionBatch,
           {
@@ -190,16 +174,11 @@ async function importQuestions() {
         totalSkipped += result.skipped;
         importErrors.push(...result.errors);
 
-        console.log(
-          `Batch result: ${result.successfullyImported} imported, ${result.skipped} skipped, ${result.errors.length} errors`
-        );
-
         // Small delay between batches
         await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
         const errorMsg = `Failed to import batch: ${error instanceof Error ? error.message : String(error)}`;
         importErrors.push(errorMsg);
-        console.error(errorMsg);
       }
     }
 
@@ -224,25 +203,12 @@ async function importQuestions() {
       ].join('\n');
 
       writeFileSync(errorFilePath, errorContent, 'utf8');
-      console.log(`\nError report written to: ${errorFilePath}`);
     }
-
-    console.log('\n=== Import Complete ===');
-    console.log(`Total processed: ${rawQuestions.length}`);
-    console.log(`Successfully imported: ${totalImported}`);
-    console.log(`Skipped (already exist): ${totalSkipped}`);
-    console.log(`Processing errors: ${errors.length}`);
-    console.log(`Import errors: ${importErrors.length}`);
 
     if (allErrors.length > 0) {
-      console.log('\nFirst 10 errors:');
-      allErrors.slice(0, 10).forEach((err) => console.log(`- ${err}`));
-      console.log('\nFull error details written to import_errors.txt');
+      allErrors.slice(0, 10).forEach((_err) => {});
     }
-  } catch (error) {
-    console.error(
-      `Import failed: ${error instanceof Error ? error.message : String(error)}`
-    );
+  } catch (_error) {
     process.exit(1);
   }
 }
@@ -251,11 +217,9 @@ async function importQuestions() {
 if (require.main === module) {
   importQuestions()
     .then(() => {
-      console.log('Import completed successfully!');
       process.exit(0);
     })
-    .catch((error) => {
-      console.error('Import failed:', error);
+    .catch((_error) => {
       process.exit(1);
     });
 }

@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const rootFile = join(process.cwd(), 'questions_data_math.json');
 const normalizedOut = join(
@@ -21,14 +21,18 @@ function main() {
   const multiIds = [];
 
   for (const item of data) {
-    if (!item || typeof item !== 'object') continue;
+    if (!item || typeof item !== 'object') {
+      continue;
+    }
     const qd = item.question_data;
     if (Array.isArray(qd)) {
       if (qd.length === 1) {
         item.question_data = qd[0];
       } else if (qd.length > 1) {
         const id = item.questionId ?? item.question_id ?? item.id ?? null;
-        if (id) multiIds.push(String(id));
+        if (id) {
+          multiIds.push(String(id));
+        }
       }
     }
   }
@@ -39,9 +43,6 @@ function main() {
     JSON.stringify({ count: multiIds.length, ids: multiIds }, null, 2),
     'utf8'
   );
-
-  console.log(`Normalized file written: ${normalizedOut}`);
-  console.log(`Multi-entry IDs written (${multiIds.length}): ${multiIdsOut}`);
 }
 
 main();

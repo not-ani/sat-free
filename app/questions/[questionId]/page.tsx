@@ -15,7 +15,9 @@ export default async function QuestionDetailPage({
   const question = await fetchQuery(api.questions.getByQuestionId, {
     questionId: decodeURIComponent(questionId),
   });
-  if (!question) return notFound();
+  if (!question) {
+    return notFound();
+  }
 
   return (
     <div className="container mx-auto py-6">

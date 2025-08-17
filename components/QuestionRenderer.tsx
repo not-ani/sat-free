@@ -2,7 +2,7 @@
 
 import { MathJax } from 'better-react-mathjax';
 import { CheckCircle2Icon, XCircleIcon } from 'lucide-react';
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -14,12 +14,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 // These mirror (a subset of) the validators defined in convex/schema.ts.
 
 // ---------------------- ID-style ---------------------- //
-interface IdMcqOption {
+type IdMcqOption = {
   id: string;
   content: string;
-}
+};
 
-interface IdBaseQuestionData {
+type IdBaseQuestionData = {
   stem: string;
   keys?: string[];
   rationale: string;
@@ -28,7 +28,7 @@ interface IdBaseQuestionData {
   origin?: string;
   templateid?: string;
   vaultid?: string;
-}
+};
 
 interface IdMcqQuestionData extends IdBaseQuestionData {
   type: 'mcq';
@@ -41,30 +41,30 @@ interface IdSprQuestionData extends IdBaseQuestionData {
 }
 
 // ---------------------- IBN-style ---------------------- //
-interface IbnMcChoice {
+type IbnMcChoice = {
   body: string;
-}
+};
 
-interface IbnMcAnswer {
+type IbnMcAnswer = {
   style: 'Multiple Choice';
   choices: Record<string, IbnMcChoice>;
   correct_choice: string;
   rationale: string;
-}
+};
 
-interface IbnSprAnswer {
+type IbnSprAnswer = {
   style: 'SPR';
   rationale: string;
-}
+};
 
-interface IbnQuestionItem {
+type IbnQuestionItem = {
   item_id: string;
   section: string;
   body?: string;
   prompt: string;
   answer: IbnMcAnswer | IbnSprAnswer;
   objective?: string;
-}
+};
 
 // The top-level union type we want to handle.
 type QuestionData = IdMcqQuestionData | IdSprQuestionData | IbnQuestionItem;
@@ -100,7 +100,7 @@ export type SubmissionResult =
       rationale?: string;
     };
 
-export interface QuestionRendererProps {
+export type QuestionRendererProps = {
   /**
    * The question_data field coming from the Convex `questions` table.
    */
@@ -109,7 +109,7 @@ export interface QuestionRendererProps {
    * Optional callback invoked on submission with grading details.
    */
   onSubmit?: (result: SubmissionResult) => void;
-}
+};
 
 /**
  * Renders a question stem/prompt along with its answer choices (if any),
@@ -221,13 +221,17 @@ function RenderIdMcq({
   const correctLabelIndexSet = useMemo(() => {
     const idxs = new Set<number>();
     mappingLabelsNormalized.forEach((lab, idx) => {
-      if (correctNormalizedSet.has(lab)) idxs.add(idx);
+      if (correctNormalizedSet.has(lab)) {
+        idxs.add(idx);
+      }
     });
     return idxs;
   }, [mappingLabelsNormalized, correctNormalizedSet]);
 
   const onSubmitClick = () => {
-    if (!selected) return null;
+    if (!selected) {
+      return null;
+    }
     const index = optionIds.indexOf(selected);
     const selectedLabelNorm =
       index >= 0 ? mappingLabelsNormalized[index] : null;
@@ -274,7 +278,7 @@ function RenderIdMcq({
             {answerOptions.map((opt, idx) => {
               const isCorrectOption =
                 correctByIdSet.has(opt.id) || correctLabelIndexSet.has(idx);
-              const isSelected = selected === opt.id;
+              const _isSelected = selected === opt.id;
               const shouldHighlightCorrect =
                 submitted && feedback && !feedback.isCorrect && isCorrectOption;
               const labelClass = `flex items-start gap-3 rounded-md p-2 transition-colors ${shouldHighlightCorrect ? 'bg-emerald-50 ring-2 ring-emerald-300' : 'hover:bg-accent/30'}`;
@@ -394,7 +398,9 @@ function RenderIdSpr({
             disabled={!input.trim() || submitted}
             onClick={() => {
               onSubmitClick();
-              if (input.trim()) toast('Submitted');
+              if (input.trim()) {
+                toast('Submitted');
+              }
             }}
           >
             Submit
@@ -561,7 +567,9 @@ function RenderIbnSpr({
             disabled={!input.trim() || submitted}
             onClick={() => {
               onSubmitClick();
-              if (input.trim()) toast('Submitted');
+              if (input.trim()) {
+                toast('Submitted');
+              }
             }}
           >
             Submit

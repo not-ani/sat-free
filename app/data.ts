@@ -1,7 +1,6 @@
 import {
   IbnQuestionDataArraySchema,
   type IbnQuestionItem,
-  IbnQuestionWrapperSchema,
 } from '@/render/ibn/schema';
 import { type QuestionData, QuestionDataSchema } from '@/render/id/schema';
 
@@ -90,10 +89,7 @@ export const ibn: IbnQuestionItem[] = [
   },
 ];
 
-const parsed = QuestionDataSchema.parse(notIbn[0]);
-const parsed1 = QuestionDataSchema.parse(notIbn[1]);
-console.log(parsed);
-console.log(parsed1);
+const _parsed = QuestionDataSchema.parse(notIbn[0]);
+const _parsed1 = QuestionDataSchema.parse(notIbn[1]);
 
-const parsed2 = IbnQuestionDataArraySchema.parse(ibn);
-console.log(parsed2);
+const _parsed2 = IbnQuestionDataArraySchema.parse(ibn);
