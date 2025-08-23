@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@convex/_generated/api';
+import { ConvexHttpClient } from 'convex/browser';
 
 // Type definitions matching the raw data structure
 type RawQuestion = {

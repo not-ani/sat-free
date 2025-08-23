@@ -1,12 +1,12 @@
 'use client';
 
+import { api } from '@convex/_generated/api';
 import { useMutation } from 'convex/react';
 import { toast } from 'sonner';
 import QuestionRenderer, {
   type QuestionRendererProps,
   type SubmissionResult,
 } from '@/components/QuestionRenderer';
-import { api } from '@convex/_generated/api';
 
 export default function QuestionWithRecorder({
   questionId,
@@ -37,6 +37,6 @@ export default function QuestionWithRecorder({
   };
 
   return (
-    <QuestionRenderer questionData={questionData} onSubmit={handleSubmit} />
+    <QuestionRenderer onSubmit={handleSubmit} questionData={questionData} />
   );
 }

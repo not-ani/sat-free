@@ -1,8 +1,8 @@
+import { api } from '@convex/_generated/api';
 import { fetchQuery } from 'convex/nextjs';
+import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import type { QuestionRendererProps } from '@/components/QuestionRenderer';
-import dynamic from 'next/dynamic';
-import { api } from '@convex/_generated/api';
 
 export default async function QuestionDetailPage({
   params,
@@ -33,10 +33,10 @@ export default async function QuestionDetailPage({
       </div>
       {/* Question content */}
       <QuestionWithRecorder
-        questionId={question.questionId}
         questionData={
           question.question_data as QuestionRendererProps['questionData']
         }
+        questionId={question.questionId}
       />
     </div>
   );

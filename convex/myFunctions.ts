@@ -107,7 +107,6 @@ export const listMyAttempts = query({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    console.log('userId', userId);
     if (!userId) {
       return [];
     }

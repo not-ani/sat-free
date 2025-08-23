@@ -1,7 +1,7 @@
-import { fetchQuery } from "convex/nextjs";
-import { api } from "@convex/_generated/api";
-import { format } from "date-fns";
-import Link from "next/link";
+import { api } from '@convex/_generated/api';
+import { fetchQuery } from 'convex/nextjs';
+import { format } from 'date-fns';
+import Link from 'next/link';
 
 export default async function DashboardPage() {
   const attempts = await fetchQuery(api.myFunctions.listMyAttempts, {});
@@ -30,9 +30,9 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <BreakdownCard title="By Subject" groups={bySubject} />
-        <BreakdownCard title="By Domain" groups={byDomain} />
-        <BreakdownCard title="By Skill" groups={bySkill} />
+        <BreakdownCard groups={bySubject} title="By Subject" />
+        <BreakdownCard groups={byDomain} title="By Domain" />
+        <BreakdownCard groups={bySkill} title="By Skill" />
       </section>
 
       <section className="space-y-3">
@@ -51,9 +51,9 @@ export default async function DashboardPage() {
             </thead>
             <tbody>
               {attempts.map((a) => (
-                <tr key={a._id} className="border-t">
+                <tr className="border-t" key={a._id}>
                   <td className="p-3 text-muted-foreground">
-                    {format(a.createDate, "PP p")}
+                    {format(a.createDate, 'PP p')}
                   </td>
                   <td className="p-3">
                     <Link
@@ -68,11 +68,17 @@ export default async function DashboardPage() {
                   <td className="p-3">{a.skill}</td>
                   <td className="p-3">
                     {a.isCorrect === null ? (
-                      <span className="rounded bg-muted px-2 py-0.5 text-xs">N/A</span>
+                      <span className="rounded bg-muted px-2 py-0.5 text-xs">
+                        N/A
+                      </span>
                     ) : a.isCorrect ? (
-                      <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-600">Correct</span>
+                      <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-emerald-600 text-xs">
+                        Correct
+                      </span>
                     ) : (
-                      <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-600">Incorrect</span>
+                      <span className="rounded bg-red-500/10 px-2 py-0.5 text-red-600 text-xs">
+                        Incorrect
+                      </span>
                     )}
                   </td>
                 </tr>
@@ -91,7 +97,7 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
       <div className="text-muted-foreground text-xs uppercase tracking-wide">
         {label}
       </div>
-      <div className="text-2xl font-semibold">{value}</div>
+      <div className="font-semibold text-2xl">{value}</div>
     </div>
   );
 }
@@ -108,10 +114,11 @@ function BreakdownCard({
       <div className="mb-2 font-medium">{title}</div>
       <div className="space-y-1 text-sm">
         {Object.entries(groups).map(([k, v]) => (
-          <div key={k} className="flex items-center justify-between">
+          <div className="flex items-center justify-between" key={k}>
             <span className="truncate pr-3">{k}</span>
             <span className="text-muted-foreground">
-              {v.correct}/{v.total} correct ({Math.round((v.correct / Math.max(v.total, 1)) * 100)}%)
+              {v.correct}/{v.total} correct (
+              {Math.round((v.correct / Math.max(v.total, 1)) * 100)}%)
             </span>
           </div>
         ))}
@@ -123,17 +130,28 @@ function BreakdownCard({
   );
 }
 
-function groupBy<T extends { [k: string]: unknown } & { isCorrect: boolean | null }>(
+function groupBy<
+  T extends { [k: string]: unknown } & { isCorrect: boolean | null },
+>(
   items: T[],
-  keyFn: (item: T) => string,
+  keyFn: (item: T) => string
 ): Record<string, { total: number; correct: number; incorrect: number }> {
-  const out: Record<string, { total: number; correct: number; incorrect: number }> = {};
+  const out: Record<
+    string,
+    { total: number; correct: number; incorrect: number }
+  > = {};
   for (const it of items) {
-    const key = keyFn(it) || "Unknown";
-    if (!out[key]) out[key] = { total: 0, correct: 0, incorrect: 0 };
+    const key = keyFn(it) || 'Unknown';
+    if (!out[key]) {
+      out[key] = { total: 0, correct: 0, incorrect: 0 };
+    }
     out[key].total += 1;
-    if (it.isCorrect === true) out[key].correct += 1;
-    if (it.isCorrect === false) out[key].incorrect += 1;
+    if (it.isCorrect === true) {
+      out[key].correct += 1;
+    }
+    if (it.isCorrect === false) {
+      out[key].incorrect += 1;
+    }
   }
   return out;
 }

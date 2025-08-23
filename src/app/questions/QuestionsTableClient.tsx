@@ -1,4 +1,19 @@
 'use client';
+import { api } from '@convex/_generated/api';
+import {
+  type Difficulty,
+  type Domain,
+  difficulties,
+  domains,
+  domainToSkills,
+  type Program,
+  programs,
+  type Skill,
+  type Subject,
+  skills,
+  subjects,
+  subjectToDomains,
+} from '@convex/questionsFilters';
 import { useQuery } from 'convex/react';
 import type { FunctionReturnType } from 'convex/server';
 import Link from 'next/link';
@@ -27,21 +42,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { api } from '@convex/_generated/api';
-import {
-  type Difficulty,
-  type Domain,
-  difficulties,
-  domains,
-  type Program,
-  programs,
-  type Skill,
-  type Subject,
-  skills,
-  subjects,
-  subjectToDomains,
-  domainToSkills,
-} from '@convex/questionsFilters';
 
 type Row = FunctionReturnType<typeof api.questions.list>['rows'][number];
 
@@ -100,12 +100,16 @@ export default function QuestionsTableClient() {
   const [isPending, startTransition] = useTransition();
 
   const availableDomains = useMemo<Domain[]>(() => {
-    if (!subject) return [...domains];
+    if (!subject) {
+      return [...domains];
+    }
     return [...subjectToDomains[subject]];
   }, [subject]);
 
   const availableSkills = useMemo<Skill[]>(() => {
-    if (!domain) return [...skills];
+    if (!domain) {
+      return [...skills];
+    }
     return [...domainToSkills[domain]];
   }, [domain]);
 
