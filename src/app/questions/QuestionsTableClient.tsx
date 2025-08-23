@@ -9,7 +9,7 @@ import {
   parseAsStringEnum,
   useQueryStates,
 } from 'nuqs';
-import { useMemo, useTransition } from 'react';
+import { useEffect, useMemo, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -39,7 +39,9 @@ import {
   type Subject,
   skills,
   subjects,
-} from '@/convex/questionsFilters';
+  subjectToDomains,
+  domainToSkills,
+} from '@convex/questionsFilters';
 
 type Row = FunctionReturnType<typeof api.questions.list>['rows'][number];
 
@@ -97,6 +99,28 @@ export default function QuestionsTableClient() {
 
   const [isPending, startTransition] = useTransition();
 
+  const availableDomains = useMemo<Domain[]>(() => {
+    if (!subject) return [...domains];
+    return [...subjectToDomains[subject]];
+  }, [subject]);
+
+  const availableSkills = useMemo<Skill[]>(() => {
+    if (!domain) return [...skills];
+    return [...domainToSkills[domain]];
+  }, [domain]);
+
+  useEffect(() => {
+    if (subject && domain && !subjectToDomains[subject].has(domain)) {
+      void setQuery({ domain: null, skill: null, page: 1 });
+    }
+  }, [subject, domain, setQuery]);
+
+  useEffect(() => {
+    if (domain && skill && !domainToSkills[domain].has(skill)) {
+      void setQuery({ skill: null, page: 1 });
+    }
+  }, [domain, skill, setQuery]);
+
   type Column = { header: string; accessor: (row: Row) => React.ReactNode };
   const columns = useMemo<Column[]>(
     () => [
@@ -119,6 +143,8 @@ export default function QuestionsTableClient() {
     ],
     []
   );
+
+  const user = useQuery(api.user.getCurrentUser);
 
   const changePage = (next: number) => {
     startTransition(() => {
@@ -187,6 +213,7 @@ export default function QuestionsTableClient() {
 
   return (
     <div className="grid gap-4">
+      {user?.name ?? 'no'}
       <div className="flex flex-wrap items-end gap-3">
         <div className="space-y-1">
           <Label>Program</Label>
@@ -218,6 +245,8 @@ export default function QuestionsTableClient() {
             onValueChange={(v: string) =>
               setQuery({
                 subject: v === '__all' ? null : (v as Subject),
+                domain: null,
+                skill: null,
                 page: 1,
               })
             }
@@ -242,6 +271,7 @@ export default function QuestionsTableClient() {
             onValueChange={(v: string) =>
               setQuery({
                 domain: v === '__all' ? null : (v as Domain),
+                skill: null,
                 page: 1,
               })
             }
@@ -252,7 +282,7 @@ export default function QuestionsTableClient() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__all">All</SelectItem>
-              {domains.map((d) => (
+              {availableDomains.map((d) => (
                 <SelectItem key={d} value={d}>
                   {d}
                 </SelectItem>
@@ -297,7 +327,7 @@ export default function QuestionsTableClient() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__all">All</SelectItem>
-              {skills.map((s) => (
+              {availableSkills.map((s) => (
                 <SelectItem key={s} value={s}>
                   {s}
                 </SelectItem>

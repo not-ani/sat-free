@@ -28,6 +28,7 @@ type IdBaseQuestionData = {
   origin?: string;
   templateid?: string;
   vaultid?: string;
+  stimulus?: string;
 };
 
 interface IdMcqQuestionData extends IdBaseQuestionData {
@@ -266,6 +267,11 @@ function RenderIdMcq({
   return (
     <Card className="fade-in slide-in-from-bottom-1 animate-in space-y-4 transition-all duration-300">
       <CardContent className="space-y-4">
+        {q.stimulus ? (
+          <div className="prose max-w-none rounded-md border bg-muted/30 p-3 leading-relaxed">
+            <HtmlMath html={q.stimulus} />
+          </div>
+        ) : null}
         <div className="prose max-w-none leading-relaxed">
           <HtmlMath html={q.stem} />
         </div>
@@ -383,6 +389,11 @@ function RenderIdSpr({
   return (
     <Card className="fade-in slide-in-from-bottom-1 animate-in space-y-4 transition-all duration-300">
       <CardContent className="space-y-4">
+        {q.stimulus ? (
+          <div className="prose max-w-none rounded-md border bg-muted/30 p-3 leading-relaxed">
+            <HtmlMath html={q.stimulus} />
+          </div>
+        ) : null}
         <div className="prose max-w-none leading-relaxed">
           <HtmlMath html={q.stem} />
         </div>

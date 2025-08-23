@@ -83,6 +83,54 @@ export type Domain = (typeof domains)[number];
 export type Difficulty = (typeof difficulties)[number];
 export type Skill = (typeof skills)[number];
 
+export const domainToSkills: Record<Domain, Set<Skill>> = {
+  // Reading and Writing
+  'Information and Ideas': new Set([
+    'Central Ideas and Details',
+    'Inferences',
+    'Command of Evidence',
+  ]),
+  'Craft and Structure': new Set([
+    'Words in Context',
+    'Text Structure and Purpose',
+    'Cross-Text Connections',
+  ]),
+  'Expression of Ideas': new Set(['Rhetorical Synthesis', 'Transitions']),
+  'Standard English Conventions': new Set([
+    'Boundaries',
+    'Form, Structure, and Sense',
+  ]),
+
+  // Math
+  Algebra: new Set([
+    'Linear equations in one variable',
+    'Linear functions',
+    'Linear equations in two variables',
+    'Systems of two linear equations in two variables',
+    'Linear inequalities in one or two variables',
+  ]),
+  'Advanced Math': new Set([
+    'Nonlinear functions',
+    'Nonlinear equations in one variable and systems of equations in two variables',
+    'Equivalent expressions',
+  ]),
+  'Problem-Solving and Data Analysis': new Set([
+    'Ratios, rates, proportional relationships, and units',
+    'Percentages',
+    'One-variable data: Distributions and measures of center and spread',
+    'Two-variable data: Models and scatterplots',
+    'Probability and conditional probability',
+    'Inference from sample statistics and margin of error',
+    'Evaluating statistical claims: Observational studies and experiments',
+  ]),
+  'Geometry and Trigonometry': new Set([
+    'Area and volume',
+    'Lines, angles, and triangles',
+    'Right triangles and trigonometry',
+    'Circles',
+  ]),
+};
+
 export const skill = v.union(
   // Information and Ideas
   v.literal('Central Ideas and Details'),

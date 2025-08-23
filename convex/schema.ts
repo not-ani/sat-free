@@ -80,6 +80,29 @@ export default defineSchema({
   numbers: defineTable({
     value: v.number(),
   }),
+  // Tracks a user's attempts/submissions for questions
+  attempts: defineTable({
+    userId: v.id('users'),
+    questionRef: v.id('questions'),
+    questionId: v.string(),
+    subject: v.string(),
+    domain: v.string(),
+    difficulty: v.string(),
+    skill: v.string(),
+    // Denormalized submission payload from the client renderer
+    result: v.any(),
+    resultType: v.union(
+      v.literal('id_mcq'),
+      v.literal('id_spr'),
+      v.literal('ibn_mcq'),
+      v.literal('ibn_spr')
+    ),
+    isCorrect: v.union(v.boolean(), v.null()),
+    createDate: v.number(),
+    updateDate: v.number(),
+  })
+    .index('by_user', ['userId'])
+    .index('by_user_question', ['userId', 'questionId']),
   // primary_class_cd_desc = domain, skill_desc (everything capitalized) = skill, difficulty (H,M,E) = difficulty (Hard, Medium, Easy)
   questions: defineTable({
     questionId: v.string(),

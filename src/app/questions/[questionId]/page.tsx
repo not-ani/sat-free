@@ -1,9 +1,8 @@
 import { fetchQuery } from 'convex/nextjs';
 import { notFound } from 'next/navigation';
-import QuestionRenderer, {
-  type QuestionRendererProps,
-} from '@/components/QuestionRenderer';
-import { api } from '@/convex/_generated/api';
+import type { QuestionRendererProps } from '@/components/QuestionRenderer';
+import dynamic from 'next/dynamic';
+import { api } from '@convex/_generated/api';
 
 export default async function QuestionDetailPage({
   params,
@@ -19,6 +18,8 @@ export default async function QuestionDetailPage({
     return notFound();
   }
 
+  const QuestionWithRecorder = dynamic(() => import('../QuestionWithRecorder'));
+
   return (
     <div className="container mx-auto py-6">
       <div className="mb-4">
@@ -31,7 +32,8 @@ export default async function QuestionDetailPage({
         </p>
       </div>
       {/* Question content */}
-      <QuestionRenderer
+      <QuestionWithRecorder
+        questionId={question.questionId}
         questionData={
           question.question_data as QuestionRendererProps['questionData']
         }

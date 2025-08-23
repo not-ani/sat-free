@@ -20,9 +20,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'SAT-Free',
   description: '',
-  icons: {
-    icon: '',
-  },
 };
 
 export default function RootLayout({
