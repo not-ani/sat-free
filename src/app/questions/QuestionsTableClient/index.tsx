@@ -164,7 +164,7 @@ export function QuestionsTableClient() {
         header: 'Question ID',
         accessor: (row: Row, rowIndex: number) => (
           <Link
-            className="text-blue-600 hover:underline"
+            className="text-primary hover:underline"
             href={`/questions/${encodeURIComponent(row.questionId)}?${baseQueryString}&row=${rowIndex}`}
           >
             {row.questionId}
@@ -265,10 +265,10 @@ export function QuestionsTableClient() {
         rowsLength={data?.rows.length ?? 0}
         totalLabel={
           totalCount === undefined
-            ? '...' 
+            ? '...'
             : totalCount > 100
-            ? '100+'
-            : String(totalCount)
+              ? '100+'
+              : String(totalCount)
         }
       />
     </div>
