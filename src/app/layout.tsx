@@ -6,6 +6,8 @@ import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server';
 import ConvexClientProvider from '@/components/ConvexClientProvider';
 import { Toaster } from '@/components/ui/sonner';
 import { MathJaxProvider } from './_providers/math-jax';
+import { Nav } from '@/components/nav';
+import { SidebarLayout } from '@/components/sidebar';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,7 +37,9 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             <MathJaxProvider>
-              <NuqsAdapter>{children}</NuqsAdapter>
+              <NuqsAdapter>
+                <SidebarLayout>{children}</SidebarLayout>
+              </NuqsAdapter>
               <Toaster closeButton richColors />
             </MathJaxProvider>
           </ConvexClientProvider>
