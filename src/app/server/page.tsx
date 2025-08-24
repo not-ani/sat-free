@@ -1,5 +1,5 @@
 import { preloadedQueryResult, preloadQuery } from 'convex/nextjs';
-import { api } from '@/convex/_generated/api';
+import { api } from '@convex/_generated/api';
 import Home from './inner';
 
 export default async function ServerPage() {

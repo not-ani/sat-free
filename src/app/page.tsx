@@ -1,5 +1,4 @@
-'use client';
-import QuestionsTableClient from './questions/QuestionsTableClient';
+import { QuestionsTableClient } from './questions/QuestionsTableClient/index';
 
 export default function Page() {
   return (

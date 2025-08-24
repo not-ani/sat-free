@@ -1,10 +1,15 @@
+'use client';
 import { api } from '@convex/_generated/api';
-import { fetchQuery } from 'convex/nextjs';
+import { useQuery } from 'convex/react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 
-export default async function DashboardPage() {
-  const attempts = await fetchQuery(api.myFunctions.listMyAttempts, {});
+export default function DashboardPage() {
+  const attempts = useQuery(api.myFunctions.listMyAttempts, {});
+
+  if (!attempts) {
+    return null;
+  }
 
   const total = attempts.length;
   const correct = attempts.filter((a) => a.isCorrect === true).length;

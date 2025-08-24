@@ -3,6 +3,7 @@ import { fetchQuery } from 'convex/nextjs';
 import dynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import type { QuestionRendererProps } from '@/components/QuestionRenderer';
+import QuestionNavigator from '../QuestionNavigator';
 
 export default async function QuestionDetailPage({
   params,
@@ -38,6 +39,8 @@ export default async function QuestionDetailPage({
         }
         questionId={question.questionId}
       />
+      {/* Navigation within filtered results */}
+      <QuestionNavigator currentQuestionId={question.questionId} />
     </div>
   );
 }

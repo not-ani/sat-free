@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "import-questions": "tsx scripts/importData.ts"
+    "mark-inactive": "tsx write.ts"
   },
   "dependencies": {
     "@convex-dev/auth": "^0.0.81",

@@ -287,7 +287,7 @@ function RenderIdMcq({
               const _isSelected = selected === opt.id;
               const shouldHighlightCorrect =
                 submitted && feedback && !feedback.isCorrect && isCorrectOption;
-              const labelClass = `flex items-start gap-3 rounded-md p-2 transition-colors ${shouldHighlightCorrect ? 'bg-emerald-50 ring-2 ring-emerald-300' : 'hover:bg-accent/30'}`;
+              const labelClass = `flex flex-row items-center gap-3 rounded-md p-2 transition-colors ${shouldHighlightCorrect ? 'bg-emerald-50 ring-2 ring-emerald-300' : 'hover:bg-accent/30'}`;
               return (
                 <label className={labelClass} key={opt.id}>
                   <RadioGroupItem className="mt-1" value={opt.id} />

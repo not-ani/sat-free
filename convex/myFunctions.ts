@@ -110,12 +110,14 @@ export const listMyAttempts = query({
     if (!userId) {
       return [];
     }
+    console.log(userId + 'userId');
     const limit = args.limit ?? 100;
     const attempts = await ctx.db
       .query('attempts')
       .withIndex('by_user', (q) => q.eq('userId', userId))
       .order('desc')
       .take(limit);
+    console.log(attempts + 'attempts');
     return attempts.map((a) => ({
       _id: a._id,
       questionId: a.questionId,

@@ -107,6 +107,7 @@ export default defineSchema({
   questions: defineTable({
     questionId: v.string(),
     score_band_range: v.number(),
+    isActive: v.optional(v.boolean()),
     skill: v.union(
       // Information and Ideas
       v.literal('Central Ideas and Details'),
@@ -180,9 +181,26 @@ export default defineSchema({
   })
     .index('by_questionId', ['questionId']) // unique logical key from dataset
     .index('by_skill', ['skill']) // for filtering by skill
+    .index('by_subject', ['subject']) // for subject-only queries
     .index('by_program', ['program']) // e.g., SAT
     .index('by_domain', ['domain']) // Math or English
     .index('by_difficulty', ['difficulty']) // content cluster
     .index('by_external_id', ['external_id']) // may be null
-    .index('by_ibn', ['ibn']), // distinguish IBN-sourced entries
+    .index('by_ibn', ['ibn']) // distinguish IBN-sourced entries
+    .index(
+      'by_s_and_su_and_d_and_di_and_pr_and_iA',
+      ['skill', 'subject', 'domain', 'difficulty', 'program', 'isActive']
+    )
+    .index(
+      'by_d_and_su_and_di_and_pr_and_iA',
+      ['domain', 'subject', 'difficulty', 'program', 'isActive']
+    )
+    .index(
+      'by_di_and_su_and_pr_and_iA',
+      ['difficulty', 'subject', 'program', 'isActive']
+    )
+    .index(
+      'by_pr_and_su_and_d_and_di_and_iA',
+      ['program', 'subject', 'domain', 'difficulty', 'isActive']
+    ),
 });
