@@ -1,7 +1,13 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import type { Column } from './types';
 
 type LoadingSkeletonProps = {
@@ -11,43 +17,12 @@ type LoadingSkeletonProps = {
 export function LoadingSkeleton({ columns }: LoadingSkeletonProps) {
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="space-y-1">
-          <Label>Program</Label>
-          <div className="h-10 w-[180px] rounded " />
-        </div>
-        <div className="space-y-1">
-          <Label>Subject</Label>
-          <div className="h-10 w-[220px] rounded " />
-        </div>
-        <div className="space-y-1">
-          <Label>Domain</Label>
-          <div className="h-10 w-[260px] rounded " />
-        </div>
-        <div className="space-y-1">
-          <Label>Difficulty</Label>
-          <div className="h-10 w-[160px] rounded " />
-        </div>
-        <div className="space-y-1">
-          <Label>Skill</Label>
-          <div className="h-10 w-[360px] rounded " />
-        </div>
-        <div>
-          <div className="h-10 w-16 rounded " />
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-lg border">
-        <div className="h-5 w-32 rounded " />
-        <div className="h-4 w-24 rounded " />
-      </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
               {columns.map((col, i) => (
-                <TableHead key={i}>{col.header}</TableHead>
+                <TableHead key={i}></TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -72,5 +47,3 @@ export function LoadingSkeleton({ columns }: LoadingSkeletonProps) {
     </div>
   );
 }
-
-
