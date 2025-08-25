@@ -28,7 +28,7 @@ export function NavUser() {
   const router = useRouter();
 
   const user = useQuery(api.user.getCurrentUser);
-  if (!user)
+  if (!user) {
     return (
       <SidebarMenuButton className="cursor-not-allowed" size="lg">
         <Skeleton className="h-8 w-8 rounded-lg" />
@@ -39,6 +39,7 @@ export function NavUser() {
         <Skeleton className="ml-auto h-4 w-4" />
       </SidebarMenuButton>
     );
+  }
 
   return (
     <SidebarMenu>

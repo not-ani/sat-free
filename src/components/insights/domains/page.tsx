@@ -5,7 +5,9 @@ import Link from 'next/link';
 
 export default function DomainsInsightsPage() {
   const stats = useQuery(api.myFunctions.getMyAttemptStats, {});
-  if (!stats) return null;
+  if (!stats) {
+    return null;
+  }
 
   const entries = Object.entries(stats.byDomain).sort(
     (a, b) => b[1].total - a[1].total

@@ -1,7 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
 import { FileQuestionIcon, LayoutDashboard } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import type React from 'react';
 import { useState } from 'react';
@@ -83,7 +82,7 @@ export const LogoIcon = () => {
 };
 
 // Dummy dashboard component with content
-const Dashboard = () => {
+const _Dashboard = () => {
   return (
     <div className="flex flex-1">
       <div className="flex h-full w-full flex-1 flex-col gap-2 rounded-tl-2xl border border-neutral-200 bg-white p-2 md:p-10 dark:border-neutral-700 dark:bg-neutral-900">
@@ -91,7 +90,7 @@ const Dashboard = () => {
           {[...new Array(4)].map((i) => (
             <div
               className="h-20 w-full animate-pulse rounded-lg bg-gray-100 dark:bg-neutral-800"
-              key={'first-array' + i}
+              key={`first-array${i}`}
             />
           ))}
         </div>
@@ -99,7 +98,7 @@ const Dashboard = () => {
           {[...new Array(2)].map((i) => (
             <div
               className="h-full w-full animate-pulse rounded-lg bg-gray-100 dark:bg-neutral-800"
-              key={'second-array' + i}
+              key={`second-array${i}`}
             />
           ))}
         </div>

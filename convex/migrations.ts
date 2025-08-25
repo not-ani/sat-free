@@ -1,5 +1,5 @@
 import { v } from 'convex/values';
-import { internalMutation, mutation } from './_generated/server';
+import { mutation } from './_generated/server';
 
 /**
  * Migration to set all questions as non-active by default
@@ -11,7 +11,7 @@ export const setAllQuestionsInactive = mutation({
     totalUpdated: v.number(),
     message: v.string(),
   }),
-  handler: async (ctx, args) => {
+  handler: async (ctx, _args) => {
     let totalUpdated = 0;
     const batchSize = 100; // Process 100 questions at a time
 
@@ -62,7 +62,7 @@ export const countQuestionsNeedingUpdate = mutation({
     needsUpdate: v.number(),
     total: v.number(),
   }),
-  handler: async (ctx, args) => {
+  handler: async (ctx, _args) => {
     // Count all questions
     const allQuestions = await ctx.db.query('questions').collect();
 

@@ -68,14 +68,30 @@ export function QuestionTablesDataClient({
     qs.set('pageSize', String(pageSize ?? 20));
     qs.set('sort', String(sort ?? 'updateDate'));
     qs.set('order', String(order ?? 'desc'));
-    if (program) qs.set('program', program);
-    if (subject) qs.set('subject', subject);
-    if (domain) qs.set('domain', domain);
-    if (difficulty) qs.set('difficulty', difficulty);
-    if (skill) qs.set('skill', skill);
-    if (ibnOnly) qs.set('ibnOnly', '1');
-    if (hasExternalId) qs.set('hasExternalId', '1');
-    if (onlyInactive) qs.set('onlyInactive', '1');
+    if (program) {
+      qs.set('program', program);
+    }
+    if (subject) {
+      qs.set('subject', subject);
+    }
+    if (domain) {
+      qs.set('domain', domain);
+    }
+    if (difficulty) {
+      qs.set('difficulty', difficulty);
+    }
+    if (skill) {
+      qs.set('skill', skill);
+    }
+    if (ibnOnly) {
+      qs.set('ibnOnly', '1');
+    }
+    if (hasExternalId) {
+      qs.set('hasExternalId', '1');
+    }
+    if (onlyInactive) {
+      qs.set('onlyInactive', '1');
+    }
     return qs.toString();
   }, [
     page,

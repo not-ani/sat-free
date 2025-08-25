@@ -16,7 +16,9 @@ export default function DashboardPage() {
     { initialNumItems: 20 }
   );
 
-  if (!stats) return null;
+  if (!stats) {
+    return null;
+  }
 
   const { totals, bySubject, byDomain, bySkill } = stats;
 

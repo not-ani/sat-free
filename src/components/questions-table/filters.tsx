@@ -23,8 +23,8 @@ type FiltersProps = {
   domain: Domain | null | undefined;
   difficulty: Difficulty | null | undefined;
   skill: Skill | null | undefined;
-  availableDomains: Array<Domain>;
-  availableSkills: Array<Skill>;
+  availableDomains: Domain[];
+  availableSkills: Skill[];
   onlyInactive: boolean | null | undefined;
   onProgramChange: (value: string) => void;
   onSubjectChange: (value: string) => void;

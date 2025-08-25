@@ -206,7 +206,9 @@ export const count = query({
           q.eq('questionId', filters.questionId!)
         )
         .unique();
-      if (!doc) return 0;
+      if (!doc) {
+        return 0;
+      }
       if (
         (filters.program && doc.program !== filters.program) ||
         (filters.subject && doc.subject !== filters.subject) ||
@@ -266,7 +268,9 @@ export const count = query({
       numItems: CAP + 1,
       cursor: null,
     });
-    if (!isDone) return CAP + 1;
+    if (!isDone) {
+      return CAP + 1;
+    }
     return page.length;
   },
 });

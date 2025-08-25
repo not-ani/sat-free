@@ -3,23 +3,23 @@
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
-interface NavItem {
+type NavItem = {
   name: string;
   url: string;
   icon: LucideIcon;
-}
+};
 
-interface NavBarProps {
+type NavBarProps = {
   items: NavItem[];
   className?: string;
-}
+};
 
 export function NavBar({ items, className }: NavBarProps) {
   const [activeTab, setActiveTab] = useState(items[0].name);
-  const [isMobile, setIsMobile] = useState(false);
+  const [_isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {

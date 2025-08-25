@@ -12,8 +12,8 @@ import {
 import type { Column, Row } from './types';
 
 type TableViewProps = {
-  rows: Array<Row>;
-  columns: Array<Column>;
+  rows: Row[];
+  columns: Column[];
 };
 
 function TableViewImpl({ rows, columns }: TableViewProps) {

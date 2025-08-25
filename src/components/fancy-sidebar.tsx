@@ -7,17 +7,17 @@ import type React from 'react';
 import { createContext, useContext, useState } from 'react';
 import { cn } from '@/lib/utils';
 
-interface Links {
+type Links = {
   label: string;
   href: string;
   icon: React.JSX.Element | React.ReactNode;
-}
+};
 
-interface SidebarContextProps {
+type SidebarContextProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   animate: boolean;
-}
+};
 
 const SidebarContext = createContext<SidebarContextProps | undefined>(
   undefined
@@ -112,46 +112,44 @@ export const MobileSidebar = ({
 }: React.ComponentProps<'div'>) => {
   const { open, setOpen } = useSidebar();
   return (
-    <>
-      <div
-        className={cn(
-          'flex h-10 w-full flex-row items-center justify-between bg-neutral-100 px-4 py-4 md:hidden dark:bg-neutral-800'
-        )}
-        {...props}
-      >
-        <div className="z-20 flex w-full justify-end">
-          <Menu
-            className="cursor-pointer text-neutral-800 dark:text-neutral-200"
-            onClick={() => setOpen(!open)}
-          />
-        </div>
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              animate={{ x: 0, opacity: 1 }}
-              className={cn(
-                'fixed inset-0 z-[100] flex h-full w-full flex-col justify-between bg-white p-10 dark:bg-neutral-900',
-                className
-              )}
-              exit={{ x: '-100%', opacity: 0 }}
-              initial={{ x: '-100%', opacity: 0 }}
-              transition={{
-                duration: 0.3,
-                ease: 'easeInOut',
-              }}
-            >
-              <div
-                className="absolute top-10 right-10 z-50 cursor-pointer text-neutral-800 dark:text-neutral-200"
-                onClick={() => setOpen(!open)}
-              >
-                <X />
-              </div>
-              {children}
-            </motion.div>
-          )}
-        </AnimatePresence>
+    <div
+      className={cn(
+        'flex h-10 w-full flex-row items-center justify-between bg-neutral-100 px-4 py-4 md:hidden dark:bg-neutral-800'
+      )}
+      {...props}
+    >
+      <div className="z-20 flex w-full justify-end">
+        <Menu
+          className="cursor-pointer text-neutral-800 dark:text-neutral-200"
+          onClick={() => setOpen(!open)}
+        />
       </div>
-    </>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            animate={{ x: 0, opacity: 1 }}
+            className={cn(
+              'fixed inset-0 z-[100] flex h-full w-full flex-col justify-between bg-white p-10 dark:bg-neutral-900',
+              className
+            )}
+            exit={{ x: '-100%', opacity: 0 }}
+            initial={{ x: '-100%', opacity: 0 }}
+            transition={{
+              duration: 0.3,
+              ease: 'easeInOut',
+            }}
+          >
+            <div
+              className="absolute top-10 right-10 z-50 cursor-pointer text-neutral-800 dark:text-neutral-200"
+              onClick={() => setOpen(!open)}
+            >
+              <X />
+            </div>
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

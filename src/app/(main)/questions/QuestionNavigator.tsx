@@ -31,8 +31,8 @@ export default function QuestionNavigator({
   const rowIndex = Number(search.get('row') ?? '0');
 
   const data = useQuery(api.questions.list, {
-    page: isFinite(page) && page > 0 ? page : 1,
-    pageSize: isFinite(pageSize) && pageSize > 0 ? pageSize : 20,
+    page: Number.isFinite(page) && page > 0 ? page : 1,
+    pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 20,
     sort,
     order,
     filters: {
@@ -49,8 +49,8 @@ export default function QuestionNavigator({
 
   // Prefetch adjacent pages to enable cross-page navigation
   const nextPageData = useQuery(api.questions.list, {
-    page: (isFinite(page) && page > 0 ? page : 1) + 1,
-    pageSize: isFinite(pageSize) && pageSize > 0 ? pageSize : 20,
+    page: (Number.isFinite(page) && page > 0 ? page : 1) + 1,
+    pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 20,
     sort,
     order,
     filters: {
@@ -66,8 +66,8 @@ export default function QuestionNavigator({
   });
 
   const prevPageData = useQuery(api.questions.list, {
-    page: Math.max(1, (isFinite(page) && page > 0 ? page : 1) - 1),
-    pageSize: isFinite(pageSize) && pageSize > 0 ? pageSize : 20,
+    page: Math.max(1, (Number.isFinite(page) && page > 0 ? page : 1) - 1),
+    pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 20,
     sort,
     order,
     filters: {
@@ -116,9 +116,12 @@ export default function QuestionNavigator({
     let prevId: string | null = null;
     if (index - 1 >= 0) {
       prevId = rows[index - 1]?.questionId ?? null;
-    } else if (isFinite(page) && page > 1 && prevPageData?.rows?.length) {
-      prevId =
-        prevPageData.rows[prevPageData.rows.length - 1]?.questionId ?? null;
+    } else if (
+      Number.isFinite(page) &&
+      page > 1 &&
+      prevPageData?.rows?.length
+    ) {
+      prevId = prevPageData.rows.at(-1)?.questionId ?? null;
     }
     let nextId: string | null = null;
     if (index + 1 < rows.length) {
@@ -128,8 +131,8 @@ export default function QuestionNavigator({
     }
     const absoluteIndex = Math.max(
       0,
-      ((isFinite(page) && page > 0 ? page : 1) - 1) *
-        (isFinite(pageSize) && pageSize > 0 ? pageSize : 20) +
+      ((Number.isFinite(page) && page > 0 ? page : 1) - 1) *
+        (Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 20) +
         index
     );
     const total = totalCount ?? rows.length;
@@ -161,8 +164,9 @@ export default function QuestionNavigator({
   }, [search]);
 
   const goTo = (dir: 'prev' | 'next') => {
-    const currPage = isFinite(page) && page > 0 ? page : 1;
-    const currPageSize = isFinite(pageSize) && pageSize > 0 ? pageSize : 20;
+    const currPage = Number.isFinite(page) && page > 0 ? page : 1;
+    const _currPageSize =
+      Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 20;
     if (dir === 'prev') {
       if (nav.index > 0 && nav.prev) {
         const nextQs = new URLSearchParams(baseQS.toString());
@@ -173,8 +177,7 @@ export default function QuestionNavigator({
         return;
       }
       if (nav.index === 0 && currPage > 1 && prevPageData?.rows?.length) {
-        const prevId =
-          prevPageData.rows[prevPageData.rows.length - 1]?.questionId;
+        const prevId = prevPageData.rows.at(-1)?.questionId;
         if (prevId) {
           const nextQs = new URLSearchParams(baseQS.toString());
           nextQs.set('page', String(currPage - 1));
@@ -218,13 +221,13 @@ export default function QuestionNavigator({
     // Back to results on the main list, preserving filters
     const qs = new URLSearchParams(baseQS.toString());
     qs.delete('row');
-    router.push(`/${qs.toString() ? '?' + qs.toString() : ''}`);
+    router.push(`/${qs.toString() ? `?${qs.toString()}` : ''}`);
   };
 
   // Disable while loading or at edges
   const disablePrev = !(
     data &&
-    (nav.prev || (nav.index === 0 && isFinite(page) && page > 1))
+    (nav.prev || (nav.index === 0 && Number.isFinite(page) && page > 1))
   );
   const disableNext = !(
     data &&

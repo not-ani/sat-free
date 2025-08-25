@@ -11,7 +11,7 @@ import {
 import type { Column } from './types';
 
 type LoadingSkeletonProps = {
-  columns: Array<Column>;
+  columns: Column[];
 };
 
 export function LoadingSkeleton({ columns }: LoadingSkeletonProps) {

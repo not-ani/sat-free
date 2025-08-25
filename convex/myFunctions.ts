@@ -111,14 +111,12 @@ export const listMyAttempts = query({
     if (!userId) {
       return [];
     }
-    console.log(userId + 'userId');
     const limit = args.limit ?? 100;
     const attempts = await ctx.db
       .query('attempts')
       .withIndex('by_user', (q) => q.eq('userId', userId))
       .order('desc')
       .take(limit);
-    console.log(attempts + 'attempts');
     return attempts.map((a) => ({
       _id: a._id,
       questionId: a.questionId,
@@ -259,26 +257,48 @@ export const getMyAttemptStats = query({
 
     for await (const a of queryIter) {
       total += 1;
-      if (a.isCorrect === true) correct += 1;
-      if (a.isCorrect === false) incorrect += 1;
+      if (a.isCorrect === true) {
+        correct += 1;
+      }
+      if (a.isCorrect === false) {
+        incorrect += 1;
+      }
 
       const s = a.subject || 'Unknown';
-      if (!bySubject[s]) bySubject[s] = { total: 0, correct: 0, incorrect: 0 };
+      if (!bySubject[s]) {
+        bySubject[s] = { total: 0, correct: 0, incorrect: 0 };
+      }
       bySubject[s].total += 1;
-      if (a.isCorrect === true) bySubject[s].correct += 1;
-      if (a.isCorrect === false) bySubject[s].incorrect += 1;
+      if (a.isCorrect === true) {
+        bySubject[s].correct += 1;
+      }
+      if (a.isCorrect === false) {
+        bySubject[s].incorrect += 1;
+      }
 
       const d = a.domain || 'Unknown';
-      if (!byDomain[d]) byDomain[d] = { total: 0, correct: 0, incorrect: 0 };
+      if (!byDomain[d]) {
+        byDomain[d] = { total: 0, correct: 0, incorrect: 0 };
+      }
       byDomain[d].total += 1;
-      if (a.isCorrect === true) byDomain[d].correct += 1;
-      if (a.isCorrect === false) byDomain[d].incorrect += 1;
+      if (a.isCorrect === true) {
+        byDomain[d].correct += 1;
+      }
+      if (a.isCorrect === false) {
+        byDomain[d].incorrect += 1;
+      }
 
       const sk = a.skill || 'Unknown';
-      if (!bySkill[sk]) bySkill[sk] = { total: 0, correct: 0, incorrect: 0 };
+      if (!bySkill[sk]) {
+        bySkill[sk] = { total: 0, correct: 0, incorrect: 0 };
+      }
       bySkill[sk].total += 1;
-      if (a.isCorrect === true) bySkill[sk].correct += 1;
-      if (a.isCorrect === false) bySkill[sk].incorrect += 1;
+      if (a.isCorrect === true) {
+        bySkill[sk].correct += 1;
+      }
+      if (a.isCorrect === false) {
+        bySkill[sk].incorrect += 1;
+      }
     }
 
     const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
