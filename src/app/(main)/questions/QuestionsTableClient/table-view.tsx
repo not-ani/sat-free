@@ -1,6 +1,13 @@
-"use client";
+'use client';
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import type { Column, Row } from './types';
 import { memo } from 'react';
 
@@ -43,5 +50,3 @@ function TableViewImpl({ rows, columns }: TableViewProps) {
 }
 
 export const TableView = memo(TableViewImpl);
-
-
