@@ -222,11 +222,14 @@ export default function QuestionNavigator({
   };
 
   // Disable while loading or at edges
-  const disablePrev =
-    !data || !(nav.prev || (nav.index === 0 && isFinite(page) && page > 1));
-  const disableNext =
-    !data ||
-    !(nav.next || (nav.index + 1 >= (data?.rows.length ?? 0) && data?.hasMore));
+  const disablePrev = !(
+    data &&
+    (nav.prev || (nav.index === 0 && isFinite(page) && page > 1))
+  );
+  const disableNext = !(
+    data &&
+    (nav.next || (nav.index + 1 >= (data?.rows.length ?? 0) && data?.hasMore))
+  );
 
   return (
     <div className="mt-6 flex items-center justify-between gap-2">
