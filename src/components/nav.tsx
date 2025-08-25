@@ -16,6 +16,16 @@ export function Nav() {
           url: '/dashboard',
           icon: LayoutDashboard,
         },
+        {
+          name: 'Skills',
+          url: '/insights/skills',
+          icon: LayoutDashboard,
+        },
+        {
+          name: 'Domains',
+          url: '/insights/domains',
+          icon: LayoutDashboard,
+        },
       ]}
     />
   );

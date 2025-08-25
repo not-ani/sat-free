@@ -12,7 +12,7 @@ import {
   subjectToDomains,
 } from '@convex/questionsFilters';
 import { useQueryStates } from 'nuqs';
-import { useCallback, useEffect, useMemo } from 'react';
+import { Suspense, useCallback, useEffect, useMemo } from 'react';
 
 import { filters } from './filter';
 import { Filters } from './filters';
@@ -111,7 +111,10 @@ export function QuestionsTableClient() {
         onSkillChange={onSkillChange}
         onOnlyInactiveChange={onOnlyInactiveChange}
       />
-      <QuestionTablesDataClient filters={results} setQuery={setQuery} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <QuestionTablesDataClient filters={results} setQuery={setQuery} />
+      </Suspense>
+
     </div>
   );
 }

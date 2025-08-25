@@ -1,24 +1,20 @@
 'use client';
 import { api } from '@convex/_generated/api';
-import { useQuery } from 'convex/react';
+import { usePaginatedQuery, useQuery } from 'convex/react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const attempts = useQuery(api.myFunctions.listMyAttempts, {});
+  const stats = useQuery(api.myFunctions.getMyAttemptStats, {});
+  const { results: attempts, loadMore, status } = usePaginatedQuery(
+    api.myFunctions.listMyAttemptsPaginated,
+    {},
+    { initialNumItems: 20 }
+  );
 
-  if (!attempts) {
-    return null;
-  }
+  if (!stats) return null;
 
-  const total = attempts.length;
-  const correct = attempts.filter((a) => a.isCorrect === true).length;
-  const incorrect = attempts.filter((a) => a.isCorrect === false).length;
-  const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
-
-  const bySubject = groupBy(attempts, (a) => a.subject);
-  const byDomain = groupBy(attempts, (a) => a.domain);
-  const bySkill = groupBy(attempts, (a) => a.skill);
+  const { totals, bySubject, byDomain, bySkill } = stats;
 
   return (
     <div className="container mx-auto space-y-6 py-6">
@@ -28,16 +24,16 @@ export default function DashboardPage() {
       </div>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <StatCard label="Attempted" value={total} />
-        <StatCard label="Correct" value={correct} />
-        <StatCard label="Incorrect" value={incorrect} />
-        <StatCard label="Accuracy" value={`${accuracy}%`} />
+        <StatCard label="Attempted" value={totals.total} />
+        <StatCard label="Correct" value={totals.correct} />
+        <StatCard label="Incorrect" value={totals.incorrect} />
+        <StatCard label="Accuracy" value={`${totals.accuracy}%`} />
       </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <BreakdownCard groups={bySubject} title="By Subject" />
-        <BreakdownCard groups={byDomain} title="By Domain" />
-        <BreakdownCard groups={bySkill} title="By Skill" />
+        <BreakdownCard groups={byDomain} title="By Domain" viewAllHref="/insights/domains" />
+        <BreakdownCard groups={bySkill} title="By Skill" viewAllHref="/insights/skills" />
       </section>
 
       <section className="space-y-3">
@@ -91,6 +87,18 @@ export default function DashboardPage() {
             </tbody>
           </table>
         </div>
+        <div className="pt-3">
+          {status !== 'Exhausted' ? (
+            <button
+              type="button"
+              className="rounded-md border px-3 py-1.5 text-sm"
+              onClick={() => loadMore(20)}
+              disabled={status === 'LoadingMore'}
+            >
+              {status === 'LoadingMore' ? 'Loading…' : 'Load more'}
+            </button>
+          ) : null}
+        </div>
       </section>
     </div>
   );
@@ -110,9 +118,11 @@ function StatCard({ label, value }: { label: string; value: string | number }) {
 function BreakdownCard({
   title,
   groups,
+  viewAllHref,
 }: {
   title: string;
   groups: Record<string, { total: number; correct: number; incorrect: number }>;
+  viewAllHref?: string;
 }) {
   return (
     <div className="rounded-md border p-4">
@@ -131,32 +141,18 @@ function BreakdownCard({
           <div className="text-muted-foreground">No data yet</div>
         ) : null}
       </div>
+      {viewAllHref ? (
+        <div className="pt-3">
+          <Link
+            href={viewAllHref}
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            View all
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function groupBy<
-  T extends { [k: string]: unknown } & { isCorrect: boolean | null },
->(
-  items: T[],
-  keyFn: (item: T) => string
-): Record<string, { total: number; correct: number; incorrect: number }> {
-  const out: Record<
-    string,
-    { total: number; correct: number; incorrect: number }
-  > = {};
-  for (const it of items) {
-    const key = keyFn(it) || 'Unknown';
-    if (!out[key]) {
-      out[key] = { total: 0, correct: 0, incorrect: 0 };
-    }
-    out[key].total += 1;
-    if (it.isCorrect === true) {
-      out[key].correct += 1;
-    }
-    if (it.isCorrect === false) {
-      out[key].incorrect += 1;
-    }
-  }
-  return out;
-}
+// groupBy utility moved to server via getMyAttemptStats

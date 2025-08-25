@@ -1,4 +1,4 @@
-import { QuestionsTableClient } from './questions/QuestionsTableClient/index';
+import { QuestionsTableClient } from '@/components/questions-table';
 
 export default function Page() {
   return (
@@ -7,3 +7,5 @@ export default function Page() {
     </div>
   );
 }
+
+export const experimental_ppr = true;

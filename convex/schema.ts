@@ -102,7 +102,9 @@ export default defineSchema({
     updateDate: v.number(),
   })
     .index('by_user', ['userId'])
-    .index('by_user_question', ['userId', 'questionId']),
+    .index('by_user_question', ['userId', 'questionId'])
+    .index('by_user_and_skill', ['userId', 'skill'])
+    .index('by_user_and_domain', ['userId', 'domain']),
   // primary_class_cd_desc = domain, skill_desc (everything capitalized) = skill, difficulty (H,M,E) = difficulty (Hard, Medium, Easy)
   questions: defineTable({
     questionId: v.string(),

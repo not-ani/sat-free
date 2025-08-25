@@ -2,6 +2,7 @@ import { getAuthUserId } from '@convex-dev/auth/server';
 import { v } from 'convex/values';
 import { api } from './_generated/api';
 import { action, mutation, query } from './_generated/server';
+import { paginationOptsValidator } from 'convex/server';
 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
@@ -130,6 +131,140 @@ export const listMyAttempts = query({
       createDate: a.createDate,
       updateDate: a.updateDate,
     }));
+  },
+});
+
+// Paginated attempts for the current user (newest first)
+export const listMyAttemptsPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    const effectiveUserId = (userId ?? ('000000000000000000000000' as any)) as any;
+    return await ctx.db
+      .query('attempts')
+      .withIndex('by_user', (q) => q.eq('userId', effectiveUserId))
+      .order('desc')
+      .paginate(args.paginationOpts);
+  },
+});
+
+// Paginated attempts filtered by a specific skill for the current user
+export const listMyAttemptsBySkillPaginated = query({
+  args: {
+    skill: v.string(),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    const effectiveUserId = (userId ?? ('000000000000000000000000' as any)) as any;
+    return await ctx.db
+      .query('attempts')
+      .withIndex('by_user_and_skill', (q) =>
+        q.eq('userId', effectiveUserId).eq('skill', args.skill)
+      )
+      .order('desc')
+      .paginate(args.paginationOpts);
+  },
+});
+
+// Paginated attempts filtered by a specific domain for the current user
+export const listMyAttemptsByDomainPaginated = query({
+  args: {
+    domain: v.string(),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    const effectiveUserId = (userId ?? ('000000000000000000000000' as any)) as any;
+    return await ctx.db
+      .query('attempts')
+      .withIndex('by_user_and_domain', (q) =>
+        q.eq('userId', effectiveUserId).eq('domain', args.domain)
+      )
+      .order('desc')
+      .paginate(args.paginationOpts);
+  },
+});
+
+// Aggregated stats for the current user: totals and breakdowns
+export const getMyAttemptStats = query({
+  args: {},
+  returns: v.object({
+    totals: v.object({
+      total: v.number(),
+      correct: v.number(),
+      incorrect: v.number(),
+      accuracy: v.number(),
+    }),
+    bySubject: v.record(
+      v.string(),
+      v.object({ total: v.number(), correct: v.number(), incorrect: v.number() })
+    ),
+    byDomain: v.record(
+      v.string(),
+      v.object({ total: v.number(), correct: v.number(), incorrect: v.number() })
+    ),
+    bySkill: v.record(
+      v.string(),
+      v.object({ total: v.number(), correct: v.number(), incorrect: v.number() })
+    ),
+  }),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return {
+        totals: { total: 0, correct: 0, incorrect: 0, accuracy: 0 },
+        bySubject: {},
+        byDomain: {},
+        bySkill: {},
+      };
+    }
+
+    const bySubject: Record<string, { total: number; correct: number; incorrect: number }> = {};
+    const byDomain: Record<string, { total: number; correct: number; incorrect: number }> = {};
+    const bySkill: Record<string, { total: number; correct: number; incorrect: number }> = {};
+    let total = 0;
+    let correct = 0;
+    let incorrect = 0;
+
+    const queryIter = ctx.db
+      .query('attempts')
+      .withIndex('by_user', (q) => q.eq('userId', userId));
+
+    for await (const a of queryIter) {
+      total += 1;
+      if (a.isCorrect === true) correct += 1;
+      if (a.isCorrect === false) incorrect += 1;
+
+      const s = a.subject || 'Unknown';
+      if (!bySubject[s]) bySubject[s] = { total: 0, correct: 0, incorrect: 0 };
+      bySubject[s].total += 1;
+      if (a.isCorrect === true) bySubject[s].correct += 1;
+      if (a.isCorrect === false) bySubject[s].incorrect += 1;
+
+      const d = a.domain || 'Unknown';
+      if (!byDomain[d]) byDomain[d] = { total: 0, correct: 0, incorrect: 0 };
+      byDomain[d].total += 1;
+      if (a.isCorrect === true) byDomain[d].correct += 1;
+      if (a.isCorrect === false) byDomain[d].incorrect += 1;
+
+      const sk = a.skill || 'Unknown';
+      if (!bySkill[sk]) bySkill[sk] = { total: 0, correct: 0, incorrect: 0 };
+      bySkill[sk].total += 1;
+      if (a.isCorrect === true) bySkill[sk].correct += 1;
+      if (a.isCorrect === false) bySkill[sk].incorrect += 1;
+    }
+
+    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+    return {
+      totals: { total, correct, incorrect, accuracy },
+      bySubject,
+      byDomain,
+      bySkill,
+    };
   },
 });
 
