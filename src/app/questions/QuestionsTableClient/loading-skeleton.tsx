@@ -21,7 +21,7 @@ export function LoadingSkeleton({ columns }: LoadingSkeletonProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              {columns.map((col, i) => (
+              {columns.map((_, i) => (
                 <TableHead key={i}></TableHead>
               ))}
             </TableRow>
