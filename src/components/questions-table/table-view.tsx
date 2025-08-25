@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import {
   Table,
   TableBody,
@@ -9,7 +10,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import type { Column, Row } from './types';
-import { memo } from 'react';
 
 type TableViewProps = {
   rows: Array<Row>;

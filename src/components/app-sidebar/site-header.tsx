@@ -1,22 +1,22 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { IconMoon, IconSun } from "@tabler/icons-react"
-import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import { IconMoon, IconSun } from '@tabler/icons-react';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 export function SiteHeader() {
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return null
+    return null;
   }
 
   return (
@@ -24,20 +24,22 @@ export function SiteHeader() {
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
 
-
-
         <div className="ml-auto flex items-center gap-2">
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="h-8 w-8 p-0"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            size="sm"
+            variant="ghost"
           >
-            {theme === "dark" ? <IconSun className="h-4 w-4" /> : <IconMoon className="h-4 w-4" />}
+            {theme === 'dark' ? (
+              <IconSun className="h-4 w-4" />
+            ) : (
+              <IconMoon className="h-4 w-4" />
+            )}
             <span className="sr-only">Toggle theme</span>
           </Button>
         </div>
       </div>
     </header>
-  )
+  );
 }

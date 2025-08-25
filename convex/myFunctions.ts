@@ -1,8 +1,8 @@
 import { getAuthUserId } from '@convex-dev/auth/server';
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 import { api } from './_generated/api';
 import { action, mutation, query } from './_generated/server';
-import { paginationOptsValidator } from 'convex/server';
 
 // Write your Convex functions in any file inside this directory (`convex`).
 // See https://docs.convex.dev/functions for more.
@@ -141,7 +141,8 @@ export const listMyAttemptsPaginated = query({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const effectiveUserId = (userId ?? ('000000000000000000000000' as any)) as any;
+    const effectiveUserId = (userId ??
+      ('000000000000000000000000' as any)) as any;
     return await ctx.db
       .query('attempts')
       .withIndex('by_user', (q) => q.eq('userId', effectiveUserId))
@@ -158,7 +159,8 @@ export const listMyAttemptsBySkillPaginated = query({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const effectiveUserId = (userId ?? ('000000000000000000000000' as any)) as any;
+    const effectiveUserId = (userId ??
+      ('000000000000000000000000' as any)) as any;
     return await ctx.db
       .query('attempts')
       .withIndex('by_user_and_skill', (q) =>
@@ -177,7 +179,8 @@ export const listMyAttemptsByDomainPaginated = query({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const effectiveUserId = (userId ?? ('000000000000000000000000' as any)) as any;
+    const effectiveUserId = (userId ??
+      ('000000000000000000000000' as any)) as any;
     return await ctx.db
       .query('attempts')
       .withIndex('by_user_and_domain', (q) =>
@@ -200,15 +203,27 @@ export const getMyAttemptStats = query({
     }),
     bySubject: v.record(
       v.string(),
-      v.object({ total: v.number(), correct: v.number(), incorrect: v.number() })
+      v.object({
+        total: v.number(),
+        correct: v.number(),
+        incorrect: v.number(),
+      })
     ),
     byDomain: v.record(
       v.string(),
-      v.object({ total: v.number(), correct: v.number(), incorrect: v.number() })
+      v.object({
+        total: v.number(),
+        correct: v.number(),
+        incorrect: v.number(),
+      })
     ),
     bySkill: v.record(
       v.string(),
-      v.object({ total: v.number(), correct: v.number(), incorrect: v.number() })
+      v.object({
+        total: v.number(),
+        correct: v.number(),
+        incorrect: v.number(),
+      })
     ),
   }),
   handler: async (ctx) => {
@@ -222,9 +237,18 @@ export const getMyAttemptStats = query({
       };
     }
 
-    const bySubject: Record<string, { total: number; correct: number; incorrect: number }> = {};
-    const byDomain: Record<string, { total: number; correct: number; incorrect: number }> = {};
-    const bySkill: Record<string, { total: number; correct: number; incorrect: number }> = {};
+    const bySubject: Record<
+      string,
+      { total: number; correct: number; incorrect: number }
+    > = {};
+    const byDomain: Record<
+      string,
+      { total: number; correct: number; incorrect: number }
+    > = {};
+    const bySkill: Record<
+      string,
+      { total: number; correct: number; incorrect: number }
+    > = {};
     let total = 0;
     let correct = 0;
     let incorrect = 0;

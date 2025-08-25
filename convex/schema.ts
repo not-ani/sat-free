@@ -189,20 +189,32 @@ export default defineSchema({
     .index('by_difficulty', ['difficulty']) // content cluster
     .index('by_external_id', ['external_id']) // may be null
     .index('by_ibn', ['ibn']) // distinguish IBN-sourced entries
-    .index(
-      'by_s_and_su_and_d_and_di_and_pr_and_iA',
-      ['skill', 'subject', 'domain', 'difficulty', 'program', 'isActive']
-    )
-    .index(
-      'by_d_and_su_and_di_and_pr_and_iA',
-      ['domain', 'subject', 'difficulty', 'program', 'isActive']
-    )
-    .index(
-      'by_di_and_su_and_pr_and_iA',
-      ['difficulty', 'subject', 'program', 'isActive']
-    )
-    .index(
-      'by_pr_and_su_and_d_and_di_and_iA',
-      ['program', 'subject', 'domain', 'difficulty', 'isActive']
-    ),
+    .index('by_s_and_su_and_d_and_di_and_pr_and_iA', [
+      'skill',
+      'subject',
+      'domain',
+      'difficulty',
+      'program',
+      'isActive',
+    ])
+    .index('by_d_and_su_and_di_and_pr_and_iA', [
+      'domain',
+      'subject',
+      'difficulty',
+      'program',
+      'isActive',
+    ])
+    .index('by_di_and_su_and_pr_and_iA', [
+      'difficulty',
+      'subject',
+      'program',
+      'isActive',
+    ])
+    .index('by_pr_and_su_and_d_and_di_and_iA', [
+      'program',
+      'subject',
+      'domain',
+      'difficulty',
+      'isActive',
+    ]),
 });

@@ -6,7 +6,11 @@ import Link from 'next/link';
 
 export default function DashboardPage() {
   const stats = useQuery(api.myFunctions.getMyAttemptStats, {});
-  const { results: attempts, loadMore, status } = usePaginatedQuery(
+  const {
+    results: attempts,
+    loadMore,
+    status,
+  } = usePaginatedQuery(
     api.myFunctions.listMyAttemptsPaginated,
     {},
     { initialNumItems: 20 }
@@ -32,8 +36,16 @@ export default function DashboardPage() {
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <BreakdownCard groups={bySubject} title="By Subject" />
-        <BreakdownCard groups={byDomain} title="By Domain" viewAllHref="/insights/domains" />
-        <BreakdownCard groups={bySkill} title="By Skill" viewAllHref="/insights/skills" />
+        <BreakdownCard
+          groups={byDomain}
+          title="By Domain"
+          viewAllHref="/insights/domains"
+        />
+        <BreakdownCard
+          groups={bySkill}
+          title="By Skill"
+          viewAllHref="/insights/skills"
+        />
       </section>
 
       <section className="space-y-3">
@@ -90,10 +102,10 @@ export default function DashboardPage() {
         <div className="pt-3">
           {status !== 'Exhausted' ? (
             <button
-              type="button"
               className="rounded-md border px-3 py-1.5 text-sm"
-              onClick={() => loadMore(20)}
               disabled={status === 'LoadingMore'}
+              onClick={() => loadMore(20)}
+              type="button"
             >
               {status === 'LoadingMore' ? 'Loading…' : 'Load more'}
             </button>
@@ -144,8 +156,8 @@ function BreakdownCard({
       {viewAllHref ? (
         <div className="pt-3">
           <Link
-            href={viewAllHref}
             className="text-primary underline-offset-4 hover:underline"
+            href={viewAllHref}
           >
             View all
           </Link>

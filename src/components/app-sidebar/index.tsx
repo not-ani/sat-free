@@ -1,10 +1,12 @@
-"use client"
+'use client';
 
-import type * as React from "react"
-import { IconDashboard, IconHelp, IconInnerShadowTop, IconSettings } from "@tabler/icons-react"
-import { NavMain } from "./nav-main"
-import { NavSecondary } from "./nav-secondary"
-import { NavUser } from "./nav-user"
+import {
+  IconDashboard,
+  IconHelp,
+  IconInnerShadowTop,
+  IconSettings,
+} from '@tabler/icons-react';
+import type * as React from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -13,36 +15,37 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-
+} from '@/components/ui/sidebar';
+import { NavMain } from './nav-main';
+import { NavSecondary } from './nav-secondary';
+import { NavUser } from './nav-user';
 
 const data = {
-
   navMain: [
     {
-      title: "Questions",
-      url: "/questions",
+      title: 'Questions',
+      url: '/app',
       icon: IconHelp,
     },
     {
-      title: "Dashboard",
-      url: "/dashboard",
+      title: 'Dashboard',
+      url: '/dashboard',
       icon: IconDashboard,
     },
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "/settings",
+      title: 'Settings',
+      url: '/settings',
       icon: IconSettings,
     },
     {
-      title: "Get Help",
-      url: "/help",
+      title: 'Get Help',
+      url: '/help',
       icon: IconHelp,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -50,10 +53,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <a href="#">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="font-semibold text-base">Acme Inc.</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -61,11 +67,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary className="mt-auto" items={data.navSecondary} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

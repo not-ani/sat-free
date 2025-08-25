@@ -148,9 +148,9 @@ function FiltersImpl(props: FiltersProps) {
         <Label>Exclude Bluebook</Label>
         <div className="flex items-center space-x-2">
           <Checkbox
-            id="onlyInactive"
             checked={onlyInactive ?? false}
             className="h-8 w-8 border-muted-foreground"
+            id="onlyInactive"
             onCheckedChange={onOnlyInactiveChange}
           />
         </div>

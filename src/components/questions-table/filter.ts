@@ -6,10 +6,10 @@ import {
   subjects,
 } from '@convex/questionsFilters';
 import {
+  type inferParserType,
   parseAsBoolean,
   parseAsInteger,
   parseAsString,
-  type inferParserType,
   parseAsStringEnum,
 } from 'nuqs';
 

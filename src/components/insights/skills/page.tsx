@@ -53,11 +53,9 @@ export default function SkillsInsightsPage() {
           </tbody>
         </table>
         {entries.length === 0 ? (
-          <div className="p-4 text-sm text-muted-foreground">No data yet</div>
+          <div className="p-4 text-muted-foreground text-sm">No data yet</div>
         ) : null}
       </div>
     </div>
   );
 }
-
-

@@ -1,6 +1,12 @@
 import { v } from 'convex/values';
 import { query } from './_generated/server';
-import { difficulty, domain, skill, subject, program as programValidator } from './questionsFilters';
+import {
+  difficulty,
+  domain,
+  program as programValidator,
+  skill,
+  subject,
+} from './questionsFilters';
 
 export const list = query({
   args: {
@@ -31,7 +37,9 @@ export const list = query({
     if (filters.questionId) {
       const doc = await ctx.db
         .query('questions')
-        .withIndex('by_questionId', (q) => q.eq('questionId', filters.questionId!))
+        .withIndex('by_questionId', (q) =>
+          q.eq('questionId', filters.questionId!)
+        )
         .unique();
       if (!doc) {
         return { rows: [], hasMore: false };
@@ -84,7 +92,9 @@ export const list = query({
     } else if (filters.difficulty) {
       baseQuery = ctx.db
         .query('questions')
-        .withIndex('by_difficulty', (q) => q.eq('difficulty', filters.difficulty!));
+        .withIndex('by_difficulty', (q) =>
+          q.eq('difficulty', filters.difficulty!)
+        );
     } else if (filters.program) {
       baseQuery = ctx.db
         .query('questions')
@@ -133,7 +143,9 @@ export const list = query({
     }
 
     const orderedQuery =
-      order === 'asc' ? filteredQuery.order('asc') : filteredQuery.order('desc');
+      order === 'asc'
+        ? filteredQuery.order('asc')
+        : filteredQuery.order('desc');
     const items = await orderedQuery.take(pageSize * page + 1);
 
     // Slice to get current page
@@ -190,7 +202,9 @@ export const count = query({
     if (filters.questionId) {
       const doc = await ctx.db
         .query('questions')
-        .withIndex('by_questionId', (q) => q.eq('questionId', filters.questionId!))
+        .withIndex('by_questionId', (q) =>
+          q.eq('questionId', filters.questionId!)
+        )
         .unique();
       if (!doc) return 0;
       if (
@@ -215,15 +229,25 @@ export const count = query({
       const tableQuery = ctx.db.query('questions');
       let q = tableQuery.fullTableScan();
       if (filters.skill) {
-        q = tableQuery.withIndex('by_skill', (b) => b.eq('skill', filters.skill!));
+        q = tableQuery.withIndex('by_skill', (b) =>
+          b.eq('skill', filters.skill!)
+        );
       } else if (filters.domain) {
-        q = tableQuery.withIndex('by_domain', (b) => b.eq('domain', filters.domain!));
+        q = tableQuery.withIndex('by_domain', (b) =>
+          b.eq('domain', filters.domain!)
+        );
       } else if (filters.difficulty) {
-        q = tableQuery.withIndex('by_difficulty', (b) => b.eq('difficulty', filters.difficulty!));
+        q = tableQuery.withIndex('by_difficulty', (b) =>
+          b.eq('difficulty', filters.difficulty!)
+        );
       } else if (filters.program) {
-        q = tableQuery.withIndex('by_program', (b) => b.eq('program', filters.program!));
+        q = tableQuery.withIndex('by_program', (b) =>
+          b.eq('program', filters.program!)
+        );
       } else if (filters.subject) {
-        q = tableQuery.withIndex('by_subject', (b) => b.eq('subject', filters.subject!));
+        q = tableQuery.withIndex('by_subject', (b) =>
+          b.eq('subject', filters.subject!)
+        );
       }
       if (filters.ibnOnly) {
         q = q.filter((b) => b.neq(b.field('ibn'), null));

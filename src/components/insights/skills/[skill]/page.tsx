@@ -74,10 +74,10 @@ export default function SkillDetailPage({
       <div className="pt-3">
         {status !== 'Exhausted' ? (
           <button
-            type="button"
             className="rounded-md border px-3 py-1.5 text-sm"
-            onClick={() => loadMore(20)}
             disabled={status === 'LoadingMore'}
+            onClick={() => loadMore(20)}
+            type="button"
           >
             {status === 'LoadingMore' ? 'Loading…' : 'Load more'}
           </button>
@@ -86,5 +86,3 @@ export default function SkillDetailPage({
     </div>
   );
 }
-
-

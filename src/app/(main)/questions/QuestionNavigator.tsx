@@ -1,8 +1,8 @@
 'use client';
 import { api } from '@convex/_generated/api';
 import { useQuery } from 'convex/react';
-import { useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 
 export default function QuestionNavigator({
@@ -15,7 +15,9 @@ export default function QuestionNavigator({
 
   const page = Number(search.get('page') ?? '1');
   const pageSize = Number(search.get('pageSize') ?? '20');
-  const sort = (search.get('sort') ?? 'updateDate') as 'updateDate' | 'createDate';
+  const sort = (search.get('sort') ?? 'updateDate') as
+    | 'updateDate'
+    | 'createDate';
   const order = (search.get('order') ?? 'desc') as 'asc' | 'desc';
   const program = search.get('program') ?? undefined;
   const subject = search.get('subject') ?? undefined;
@@ -114,8 +116,9 @@ export default function QuestionNavigator({
     let prevId: string | null = null;
     if (index - 1 >= 0) {
       prevId = rows[index - 1]?.questionId ?? null;
-    } else if ((isFinite(page) && page > 1) && prevPageData?.rows?.length) {
-      prevId = prevPageData.rows[prevPageData.rows.length - 1]?.questionId ?? null;
+    } else if (isFinite(page) && page > 1 && prevPageData?.rows?.length) {
+      prevId =
+        prevPageData.rows[prevPageData.rows.length - 1]?.questionId ?? null;
     }
     let nextId: string | null = null;
     if (index + 1 < rows.length) {
@@ -123,10 +126,32 @@ export default function QuestionNavigator({
     } else if (data.hasMore && nextPageData?.rows?.length) {
       nextId = nextPageData.rows[0]?.questionId ?? null;
     }
-    const absoluteIndex = Math.max(0, ((isFinite(page) && page > 0 ? page : 1) - 1) * (isFinite(pageSize) && pageSize > 0 ? pageSize : 20) + index);
+    const absoluteIndex = Math.max(
+      0,
+      ((isFinite(page) && page > 0 ? page : 1) - 1) *
+        (isFinite(pageSize) && pageSize > 0 ? pageSize : 20) +
+        index
+    );
     const total = totalCount ?? rows.length;
-    return { index, count: rows.length, prev: prevId, next: nextId, onlyInactive: rows[index]?.isActive === false, absoluteIndex, total };
-  }, [data, rowIndex, currentQuestionId, page, pageSize, prevPageData, nextPageData, totalCount]);
+    return {
+      index,
+      count: rows.length,
+      prev: prevId,
+      next: nextId,
+      onlyInactive: rows[index]?.isActive === false,
+      absoluteIndex,
+      total,
+    };
+  }, [
+    data,
+    rowIndex,
+    currentQuestionId,
+    page,
+    pageSize,
+    prevPageData,
+    nextPageData,
+    totalCount,
+  ]);
 
   const baseQS = useMemo(() => {
     const qs = new URLSearchParams(search.toString());
@@ -142,16 +167,21 @@ export default function QuestionNavigator({
       if (nav.index > 0 && nav.prev) {
         const nextQs = new URLSearchParams(baseQS.toString());
         nextQs.set('row', String(Math.max(0, nav.index - 1)));
-        router.push(`/questions/${encodeURIComponent(nav.prev)}?${nextQs.toString()}`);
+        router.push(
+          `/questions/${encodeURIComponent(nav.prev)}?${nextQs.toString()}`
+        );
         return;
       }
       if (nav.index === 0 && currPage > 1 && prevPageData?.rows?.length) {
-        const prevId = prevPageData.rows[prevPageData.rows.length - 1]?.questionId;
+        const prevId =
+          prevPageData.rows[prevPageData.rows.length - 1]?.questionId;
         if (prevId) {
           const nextQs = new URLSearchParams(baseQS.toString());
           nextQs.set('page', String(currPage - 1));
           nextQs.set('row', String(Math.max(0, prevPageData.rows.length - 1)));
-          router.push(`/questions/${encodeURIComponent(prevId)}?${nextQs.toString()}`);
+          router.push(
+            `/questions/${encodeURIComponent(prevId)}?${nextQs.toString()}`
+          );
           return;
         }
       }
@@ -160,16 +190,24 @@ export default function QuestionNavigator({
       if (nav.index + 1 < (data?.rows.length ?? 0) && nav.next) {
         const nextQs = new URLSearchParams(baseQS.toString());
         nextQs.set('row', String(nav.index + 1));
-        router.push(`/questions/${encodeURIComponent(nav.next)}?${nextQs.toString()}`);
+        router.push(
+          `/questions/${encodeURIComponent(nav.next)}?${nextQs.toString()}`
+        );
         return;
       }
-      if (nav.index + 1 >= (data?.rows.length ?? 0) && data?.hasMore && nextPageData?.rows?.length) {
+      if (
+        nav.index + 1 >= (data?.rows.length ?? 0) &&
+        data?.hasMore &&
+        nextPageData?.rows?.length
+      ) {
         const nextId = nextPageData.rows[0]?.questionId;
         if (nextId) {
           const nextQs = new URLSearchParams(baseQS.toString());
           nextQs.set('page', String(currPage + 1));
           nextQs.set('row', '0');
-          router.push(`/questions/${encodeURIComponent(nextId)}?${nextQs.toString()}`);
+          router.push(
+            `/questions/${encodeURIComponent(nextId)}?${nextQs.toString()}`
+          );
           return;
         }
       }
@@ -184,16 +222,24 @@ export default function QuestionNavigator({
   };
 
   // Disable while loading or at edges
-  const disablePrev = !data || (!nav.prev && !(nav.index === 0 && (isFinite(page) && page > 1)));
-  const disableNext = !data || (!nav.next && !(nav.index + 1 >= (data?.rows.length ?? 0) && data?.hasMore));
+  const disablePrev =
+    !data || !(nav.prev || (nav.index === 0 && isFinite(page) && page > 1));
+  const disableNext =
+    !data ||
+    !(nav.next || (nav.index + 1 >= (data?.rows.length ?? 0) && data?.hasMore));
 
   return (
     <div className="mt-6 flex items-center justify-between gap-2">
-      <Button type="button" variant="outline" disabled={disablePrev} onClick={() => goTo('prev')}>
+      <Button
+        disabled={disablePrev}
+        onClick={() => goTo('prev')}
+        type="button"
+        variant="outline"
+      >
         Previous
       </Button>
       <div className="flex items-center gap-3">
-        <Button type="button" variant="ghost" onClick={goBack}>
+        <Button onClick={goBack} type="button" variant="ghost">
           Back to results
         </Button>
         <span className="text-muted-foreground text-sm">
@@ -202,11 +248,14 @@ export default function QuestionNavigator({
             : '—'}
         </span>
       </div>
-      <Button type="button" variant="outline" disabled={disableNext} onClick={() => goTo('next')}>
+      <Button
+        disabled={disableNext}
+        onClick={() => goTo('next')}
+        type="button"
+        variant="outline"
+      >
         Next
       </Button>
     </div>
   );
 }
-
-

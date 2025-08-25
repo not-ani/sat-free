@@ -9,10 +9,10 @@ export default function SignIn() {
       <p>Log in to see the numbers</p>
       <button
         className="rounded-md bg-foreground px-4 py-2 text-background"
-        type="button"
         onClick={() => {
           void signIn('google');
         }}
+        type="button"
       >
         Sign in with Google
       </button>

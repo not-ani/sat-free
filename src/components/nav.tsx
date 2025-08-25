@@ -1,6 +1,6 @@
 'use client';
-import { NavBar } from '@/components/navbar-base';
 import { FileQuestionMark, LayoutDashboard } from 'lucide-react';
+import { NavBar } from '@/components/navbar-base';
 
 export function Nav() {
   return (

@@ -1,12 +1,12 @@
 import { api } from '@convex/_generated/api';
 import { useQuery } from 'convex/react';
+import Link from 'next/link';
+import { useCallback, useMemo, useTransition } from 'react';
+import type { Filters } from './filter';
+import { LoadingSkeleton } from './loading-skeleton';
 import { Pagination } from './pagination';
 import { TableView } from './table-view';
-import { Filters } from './filter';
-import { LoadingSkeleton } from './loading-skeleton';
-import { useCallback, useMemo, useTransition } from 'react';
-import { Column, Row } from './types';
-import Link from 'next/link';
+import type { Column, Row } from './types';
 
 export function QuestionTablesDataClient({
   filters,
@@ -127,13 +127,13 @@ export function QuestionTablesDataClient({
 
   return (
     <>
-      <TableView rows={data.rows} columns={columns} />
+      <TableView columns={columns} rows={data.rows} />
 
       <Pagination
-        page={page}
-        isPending={isPending}
-        hasMore={data?.hasMore}
         changePage={changePage}
+        hasMore={data?.hasMore}
+        isPending={isPending}
+        page={page}
         rowsLength={data?.rows.length ?? 0}
         totalLabel={
           totalCount === undefined

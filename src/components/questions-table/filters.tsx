@@ -1,5 +1,11 @@
-"use client";
-import type { Difficulty, Domain, Program, Skill, Subject } from '@convex/questionsFilters';
+'use client';
+import type {
+  Difficulty,
+  Domain,
+  Program,
+  Skill,
+  Subject,
+} from '@convex/questionsFilters';
 import { difficulties, programs, subjects } from '@convex/questionsFilters';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -103,7 +109,10 @@ function FiltersImpl(props: FiltersProps) {
 
       <div className="space-y-1">
         <Label>Difficulty</Label>
-        <Select onValueChange={onDifficultyChange} value={difficulty ?? '__all'}>
+        <Select
+          onValueChange={onDifficultyChange}
+          value={difficulty ?? '__all'}
+        >
           <SelectTrigger className="w-[160px] border-muted-foreground">
             <SelectValue placeholder="All" />
           </SelectTrigger>
@@ -139,9 +148,9 @@ function FiltersImpl(props: FiltersProps) {
         <Label>Exclude Bluebook</Label>
         <div className="flex items-center space-x-2">
           <Checkbox
-            id="onlyInactive"
             checked={onlyInactive ?? false}
             className="h-8 w-8 border-muted-foreground"
+            id="onlyInactive"
             onCheckedChange={onOnlyInactiveChange}
           />
         </div>
@@ -151,5 +160,3 @@ function FiltersImpl(props: FiltersProps) {
 }
 
 export const Filters = memo(FiltersImpl);
-
-

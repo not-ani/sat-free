@@ -13,10 +13,9 @@ import {
 } from '@convex/questionsFilters';
 import { useQueryStates } from 'nuqs';
 import { Suspense, useCallback, useEffect, useMemo } from 'react';
-
+import { QuestionTablesDataClient } from './data';
 import { filters } from './filter';
 import { Filters } from './filters';
-import { QuestionTablesDataClient } from './data';
 
 export function QuestionsTableClient() {
   const [results, setQuery] = useQueryStates(filters);
@@ -96,25 +95,24 @@ export function QuestionsTableClient() {
   return (
     <div className="grid gap-4">
       <Filters
-        program={program}
-        subject={subject}
-        domain={domain}
-        difficulty={difficulty}
-        skill={skill}
         availableDomains={availableDomains}
         availableSkills={availableSkills}
-        onlyInactive={onlyInactive}
-        onProgramChange={onProgramChange}
-        onSubjectChange={onSubjectChange}
-        onDomainChange={onDomainChange}
+        difficulty={difficulty}
+        domain={domain}
         onDifficultyChange={onDifficultyChange}
-        onSkillChange={onSkillChange}
+        onDomainChange={onDomainChange}
+        onlyInactive={onlyInactive}
         onOnlyInactiveChange={onOnlyInactiveChange}
+        onProgramChange={onProgramChange}
+        onSkillChange={onSkillChange}
+        onSubjectChange={onSubjectChange}
+        program={program}
+        skill={skill}
+        subject={subject}
       />
       <Suspense fallback={<div>Loading...</div>}>
         <QuestionTablesDataClient filters={results} setQuery={setQuery} />
       </Suspense>
-
     </div>
   );
 }
