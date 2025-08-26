@@ -48,6 +48,39 @@ export function QuestionTablesDataClient({
       questionId: questionId || undefined,
     },
   });
+  // Prefetch adjacent pages for snappy navigation
+  const _prefetchNext = useQuery(api.questions.list, {
+    page: (page ?? 1) + 1,
+    pageSize: pageSize ?? 20,
+    sort: sort ?? 'updateDate',
+    order: order ?? 'desc',
+    filters: {
+      program: program ?? undefined,
+      subject: subject ?? undefined,
+      domain: domain ?? undefined,
+      difficulty: difficulty ?? undefined,
+      skill: skill ?? undefined,
+      ibnOnly: ibnOnly ?? undefined,
+      hasExternalId: hasExternalId ?? undefined,
+      onlyInactive: onlyInactive ?? undefined,
+    },
+  });
+  const _prefetchPrev = useQuery(api.questions.list, {
+    page: Math.max(1, (page ?? 1) - 1),
+    pageSize: pageSize ?? 20,
+    sort: sort ?? 'updateDate',
+    order: order ?? 'desc',
+    filters: {
+      program: program ?? undefined,
+      subject: subject ?? undefined,
+      domain: domain ?? undefined,
+      difficulty: difficulty ?? undefined,
+      skill: skill ?? undefined,
+      ibnOnly: ibnOnly ?? undefined,
+      hasExternalId: hasExternalId ?? undefined,
+      onlyInactive: onlyInactive ?? undefined,
+    },
+  });
   const totalCount = useQuery(api.questions.count, {
     filters: {
       program: program ?? undefined,

@@ -95,10 +95,6 @@ export const list = query({
         .withIndex('by_difficulty', (q) =>
           q.eq('difficulty', filters.difficulty!)
         );
-    } else if (filters.program) {
-      baseQuery = ctx.db
-        .query('questions')
-        .withIndex('by_program', (q) => q.eq('program', filters.program!));
     } else if (filters.subject) {
       baseQuery = ctx.db
         .query('questions')
@@ -241,10 +237,6 @@ export const count = query({
       } else if (filters.difficulty) {
         q = tableQuery.withIndex('by_difficulty', (b) =>
           b.eq('difficulty', filters.difficulty!)
-        );
-      } else if (filters.program) {
-        q = tableQuery.withIndex('by_program', (b) =>
-          b.eq('program', filters.program!)
         );
       } else if (filters.subject) {
         q = tableQuery.withIndex('by_subject', (b) =>
