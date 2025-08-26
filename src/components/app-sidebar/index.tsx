@@ -19,6 +19,7 @@ import {
 import { NavMain } from './nav-main';
 import { NavSecondary } from './nav-secondary';
 import { NavUser } from './nav-user';
+import Link from 'next/link';
 
 const data = {
   navMain: [
@@ -57,10 +58,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link href="/app">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="font-semibold text-base">Acme Inc.</span>
-              </a>
+                <span className="font-semibold text-base">Sat OCW.</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
