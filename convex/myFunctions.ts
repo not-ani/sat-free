@@ -139,11 +139,12 @@ export const listMyAttemptsPaginated = query({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const effectiveUserId = (userId ??
-      ('000000000000000000000000' as any)) as any;
+    if (!userId) {
+      return [];
+    }
     return await ctx.db
       .query('attempts')
-      .withIndex('by_user', (q) => q.eq('userId', effectiveUserId))
+      .withIndex('by_user', (q) => q.eq('userId', userId))
       .order('desc')
       .paginate(args.paginationOpts);
   },
@@ -157,12 +158,13 @@ export const listMyAttemptsBySkillPaginated = query({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const effectiveUserId = (userId ??
-      ('000000000000000000000000' as any)) as any;
+    if (!userId) {
+      return [];
+    }
     return await ctx.db
       .query('attempts')
       .withIndex('by_user_and_skill', (q) =>
-        q.eq('userId', effectiveUserId).eq('skill', args.skill)
+        q.eq('userId', userId).eq('skill', args.skill)
       )
       .order('desc')
       .paginate(args.paginationOpts);
@@ -177,12 +179,13 @@ export const listMyAttemptsByDomainPaginated = query({
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
-    const effectiveUserId = (userId ??
-      ('000000000000000000000000' as any)) as any;
+    if (!userId) {
+      return [];
+    }
     return await ctx.db
       .query('attempts')
       .withIndex('by_user_and_domain', (q) =>
-        q.eq('userId', effectiveUserId).eq('domain', args.domain)
+        q.eq('userId', userId).eq('domain', args.domain)
       )
       .order('desc')
       .paginate(args.paginationOpts);

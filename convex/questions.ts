@@ -1,12 +1,135 @@
 import { v } from 'convex/values';
+import type { QueryCtx } from './_generated/server';
 import { query } from './_generated/server';
 import {
+  type Difficulty,
+  type Domain,
   difficulty,
   domain,
+  type Program,
   program as programValidator,
+  type Skill,
+  type Subject,
   skill,
   subject,
 } from './questionsFilters';
+
+const DEFAULT_PAGE_SIZE = 20;
+
+type Filters = {
+  program?: Program;
+  subject?: Subject;
+  domain?: Domain;
+  difficulty?: Difficulty;
+  skill?: Skill;
+  ibnOnly?: boolean;
+  hasExternalId?: boolean;
+  onlyInactive?: boolean;
+  questionId?: string;
+};
+
+async function handleQuestionIdLookup(
+  ctx: QueryCtx,
+  filters: Filters,
+  questionId: string
+) {
+  const doc = await ctx.db
+    .query('questions')
+    .withIndex('by_questionId', (q) => q.eq('questionId', questionId))
+    .unique();
+  if (!doc) {
+    return null;
+  }
+
+  // Apply remaining filters in-memory to avoid returning mismatched records
+  if (
+    (filters.program && doc.program !== filters.program) ||
+    (filters.subject && doc.subject !== filters.subject) ||
+    (filters.domain && doc.domain !== filters.domain) ||
+    (filters.difficulty && doc.difficulty !== filters.difficulty) ||
+    (filters.skill && doc.skill !== filters.skill) ||
+    (filters.onlyInactive && doc.isActive !== false) ||
+    (filters.hasExternalId && doc.external_id === null) ||
+    (filters.ibnOnly && doc.ibn === null)
+  ) {
+    return null;
+  }
+
+  return doc;
+}
+
+function buildBaseQuery(ctx: QueryCtx, filters: Filters) {
+  if (filters.skill) {
+    const skillValue = filters.skill;
+    return ctx.db
+      .query('questions')
+      .withIndex('by_skill', (q) => q.eq('skill', skillValue));
+  }
+  if (filters.domain) {
+    const domainValue = filters.domain;
+    return ctx.db
+      .query('questions')
+      .withIndex('by_domain', (q) => q.eq('domain', domainValue));
+  }
+  if (filters.difficulty) {
+    const difficultyValue = filters.difficulty;
+    return ctx.db
+      .query('questions')
+      .withIndex('by_difficulty', (q) => q.eq('difficulty', difficultyValue));
+  }
+  if (filters.subject) {
+    const subjectValue = filters.subject;
+    return ctx.db
+      .query('questions')
+      .withIndex('by_subject', (q) => q.eq('subject', subjectValue));
+  }
+  return ctx.db.query('questions');
+}
+
+function applyFilters(
+  baseQuery: ReturnType<typeof buildBaseQuery>,
+  filters: Filters
+) {
+  let filteredQuery = baseQuery;
+  if (filters.subject) {
+    const subjectValue = filters.subject;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.eq(q.field('subject'), subjectValue)
+    );
+  }
+  if (filters.domain) {
+    const domainValue = filters.domain;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.eq(q.field('domain'), domainValue)
+    );
+  }
+  if (filters.difficulty) {
+    const difficultyValue = filters.difficulty;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.eq(q.field('difficulty'), difficultyValue)
+    );
+  }
+  if (filters.program) {
+    const programValue = filters.program;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.eq(q.field('program'), programValue)
+    );
+  }
+  if (filters.ibnOnly) {
+    filteredQuery = filteredQuery.filter((q) => q.neq(q.field('ibn'), null));
+  }
+  if (filters.hasExternalId) {
+    filteredQuery = filteredQuery.filter((q) =>
+      q.neq(q.field('external_id'), null)
+    );
+  }
+  if (filters.onlyInactive) {
+    filteredQuery = filteredQuery.filter((q) =>
+      q.eq(q.field('isActive'), false)
+    );
+  }
+  return filteredQuery;
+}
 
 export const list = query({
   args: {
@@ -30,32 +153,18 @@ export const list = query({
   },
   handler: async (ctx, args) => {
     const page = args.page ?? 1;
-    const pageSize = args.pageSize ?? 20;
+    const pageSize = args.pageSize ?? DEFAULT_PAGE_SIZE;
     const order = args.order ?? 'desc';
     const filters = args.filters ?? {};
+
     // Fast path: direct lookup by questionId
     if (filters.questionId) {
-      const doc = await ctx.db
-        .query('questions')
-        .withIndex('by_questionId', (q) =>
-          q.eq('questionId', filters.questionId!)
-        )
-        .unique();
+      const doc = await handleQuestionIdLookup(
+        ctx,
+        filters,
+        filters.questionId
+      );
       if (!doc) {
-        return { rows: [], hasMore: false };
-      }
-
-      // Apply remaining filters in-memory to avoid returning mismatched records
-      if (
-        (filters.program && doc.program !== filters.program) ||
-        (filters.subject && doc.subject !== filters.subject) ||
-        (filters.domain && doc.domain !== filters.domain) ||
-        (filters.difficulty && doc.difficulty !== filters.difficulty) ||
-        (filters.skill && doc.skill !== filters.skill) ||
-        (filters.onlyInactive && doc.isActive !== false) ||
-        (filters.hasExternalId && doc.external_id === null) ||
-        (filters.ibnOnly && doc.ibn === null)
-      ) {
         return { rows: [], hasMore: false };
       }
 
@@ -66,7 +175,6 @@ export const list = query({
           program: doc.program,
           ibn: doc.ibn,
           external_id: doc.external_id,
-          question_data: doc.question_data,
           createDate: doc.createDate,
           updateDate: doc.updateDate,
           subject: doc.subject,
@@ -79,64 +187,8 @@ export const list = query({
       return { rows, hasMore: false };
     }
 
-    // Choose an index based on the most selective filter available
-    let baseQuery;
-    if (filters.skill) {
-      baseQuery = ctx.db
-        .query('questions')
-        .withIndex('by_skill', (q) => q.eq('skill', filters.skill!));
-    } else if (filters.domain) {
-      baseQuery = ctx.db
-        .query('questions')
-        .withIndex('by_domain', (q) => q.eq('domain', filters.domain!));
-    } else if (filters.difficulty) {
-      baseQuery = ctx.db
-        .query('questions')
-        .withIndex('by_difficulty', (q) =>
-          q.eq('difficulty', filters.difficulty!)
-        );
-    } else if (filters.subject) {
-      baseQuery = ctx.db
-        .query('questions')
-        .withIndex('by_subject', (q) => q.eq('subject', filters.subject!));
-    } else {
-      baseQuery = ctx.db.query('questions');
-    }
-
-    let filteredQuery = baseQuery;
-    if (filters.subject) {
-      filteredQuery = filteredQuery.filter((q) =>
-        q.eq(q.field('subject'), filters.subject!)
-      );
-    }
-    if (filters.domain) {
-      filteredQuery = filteredQuery.filter((q) =>
-        q.eq(q.field('domain'), filters.domain!)
-      );
-    }
-    if (filters.difficulty) {
-      filteredQuery = filteredQuery.filter((q) =>
-        q.eq(q.field('difficulty'), filters.difficulty!)
-      );
-    }
-    if (filters.program) {
-      filteredQuery = filteredQuery.filter((q) =>
-        q.eq(q.field('program'), filters.program!)
-      );
-    }
-    if (filters.ibnOnly) {
-      filteredQuery = filteredQuery.filter((q) => q.neq(q.field('ibn'), null));
-    }
-    if (filters.hasExternalId) {
-      filteredQuery = filteredQuery.filter((q) =>
-        q.neq(q.field('external_id'), null)
-      );
-    }
-    if (filters.onlyInactive) {
-      filteredQuery = filteredQuery.filter((q) =>
-        q.eq(q.field('isActive'), false)
-      );
-    }
+    const baseQuery = buildBaseQuery(ctx, filters);
+    const filteredQuery = applyFilters(baseQuery, filters);
 
     const orderedQuery =
       order === 'asc'
@@ -153,7 +205,6 @@ export const list = query({
       program: item.program,
       ibn: item.ibn,
       external_id: item.external_id,
-      question_data: item.question_data,
       createDate: item.createDate,
       updateDate: item.updateDate,
       subject: item.subject,
@@ -196,67 +247,19 @@ export const count = query({
 
     // Fast path: direct count by questionId
     if (filters.questionId) {
-      const doc = await ctx.db
-        .query('questions')
-        .withIndex('by_questionId', (q) =>
-          q.eq('questionId', filters.questionId!)
-        )
-        .unique();
-      if (!doc) {
-        return 0;
-      }
-      if (
-        (filters.program && doc.program !== filters.program) ||
-        (filters.subject && doc.subject !== filters.subject) ||
-        (filters.domain && doc.domain !== filters.domain) ||
-        (filters.difficulty && doc.difficulty !== filters.difficulty) ||
-        (filters.skill && doc.skill !== filters.skill) ||
-        (filters.onlyInactive && doc.isActive !== false) ||
-        (filters.hasExternalId && doc.external_id === null) ||
-        (filters.ibnOnly && doc.ibn === null)
-      ) {
-        return 0;
-      }
-      return 1;
+      const doc = await handleQuestionIdLookup(
+        ctx,
+        filters,
+        filters.questionId
+      );
+      return doc ? 1 : 0;
     }
 
-    const onlyInactive = filters.onlyInactive === true;
-
-    // Helper to rebuild the query each iteration (Convex query builders can't be reused after iteration)
-    const buildQuery = () => {
-      const tableQuery = ctx.db.query('questions');
-      let q = tableQuery.fullTableScan();
-      if (filters.skill) {
-        q = tableQuery.withIndex('by_skill', (b) =>
-          b.eq('skill', filters.skill!)
-        );
-      } else if (filters.domain) {
-        q = tableQuery.withIndex('by_domain', (b) =>
-          b.eq('domain', filters.domain!)
-        );
-      } else if (filters.difficulty) {
-        q = tableQuery.withIndex('by_difficulty', (b) =>
-          b.eq('difficulty', filters.difficulty!)
-        );
-      } else if (filters.subject) {
-        q = tableQuery.withIndex('by_subject', (b) =>
-          b.eq('subject', filters.subject!)
-        );
-      }
-      if (filters.ibnOnly) {
-        q = q.filter((b) => b.neq(b.field('ibn'), null));
-      }
-      if (filters.hasExternalId) {
-        q = q.filter((b) => b.neq(b.field('external_id'), null));
-      }
-      if (onlyInactive) {
-        q = q.filter((b) => b.eq(b.field('isActive'), false));
-      }
-      return q;
-    };
+    const baseQuery = buildBaseQuery(ctx, filters);
+    const filteredQuery = applyFilters(baseQuery, filters);
 
     // Single paginated read (Convex allows at most one paginate per function)
-    const { page, isDone } = await buildQuery().paginate({
+    const { page, isDone } = await filteredQuery.paginate({
       numItems: CAP + 1,
       cursor: null,
     });
@@ -280,7 +283,6 @@ export const getByQuestionId = query({
       skill: v.string(),
       ibn: v.union(v.string(), v.null()),
       external_id: v.union(v.string(), v.null()),
-      question_data: v.any(),
       createDate: v.number(),
       updateDate: v.number(),
     }),
@@ -294,6 +296,15 @@ export const getByQuestionId = query({
     if (!doc) {
       return null;
     }
+
+    const questionData = await ctx.db
+      .query('questions_data')
+      .withIndex('by_questionId', (q) => q.eq('questionId', doc._id))
+      .unique();
+    if (!questionData) {
+      return null;
+    }
+
     return {
       _id: doc._id,
       questionId: doc.questionId,
@@ -304,8 +315,8 @@ export const getByQuestionId = query({
       skill: doc.skill,
       ibn: doc.ibn,
       external_id: doc.external_id,
-      question_data: doc.question_data,
       createDate: doc.createDate,
+      question_data: questionData.question_data,
       updateDate: doc.updateDate,
     };
   },
