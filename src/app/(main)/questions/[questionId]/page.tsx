@@ -1,46 +1,26 @@
-import { api } from '@convex/_generated/api';
-import { fetchQuery } from 'convex/nextjs';
-import dynamic from 'next/dynamic';
-import { notFound } from 'next/navigation';
-import type { QuestionRendererProps } from '@/components/QuestionRenderer';
-import QuestionNavigator from '../QuestionNavigator';
+import { ExamProvider } from '@/components/exam/exam-context';
+import { ExamInterface } from '@/components/exam/exam-interface';
 
-export default async function QuestionDetailPage({
-  params,
-}: {
-  params: Promise<{ questionId: string }>;
-}) {
-  const { questionId } = await params;
-
-  const question = await fetchQuery(api.questions.getByQuestionId, {
-    questionId: decodeURIComponent(questionId),
-  });
-  if (!question) {
-    return notFound();
-  }
-
-  const QuestionWithRecorder = dynamic(() => import('../QuestionWithRecorder'));
+export default function QuestionDetailPage() {
+  const question = {
+    type: 'mcq' as const,
+    stem: "In recommending Bao Phi's collection Song I Sing, a librarian noted that pieces by the spoken-word poet don't lose their _____ nature when printed: the language has the same pleasant musical quality on the page as it does when performed by Phi.",
+    answerOptions: [
+      { id: 'A', content: 'scholarly' },
+      { id: 'B', content: 'melodic' },
+      { id: 'C', content: 'jarring' },
+      { id: 'D', content: 'personal' },
+    ],
+    correct_answer: ['B'],
+    rationale:
+      "The correct answer is 'melodic' because the passage describes the language as having a 'pleasant musical quality,' which directly relates to melodic characteristics.",
+    externalid: 'q1',
+    keys: ['vocabulary', 'context-clues'],
+  };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-4">
-        <h1 className="font-semibold text-2xl">
-          Question {question.questionId}
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          {question.subject} • {question.domain} • {question.skill} •{' '}
-          {question.difficulty}
-        </p>
-      </div>
-      {/* Question content */}
-      <QuestionWithRecorder
-        questionData={
-          question.question_data as QuestionRendererProps['questionData']
-        }
-        questionId={question.questionId}
-      />
-      {/* Navigation within filtered results */}
-      <QuestionNavigator currentQuestionId={question.questionId} />
-    </div>
+    <ExamProvider questions={[question]}>
+      <ExamInterface />
+    </ExamProvider>
   );
 }

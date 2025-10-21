@@ -16,7 +16,7 @@ export const setAllQuestionsInactive = mutation({
     const batchSize = 100; // Process 100 questions at a time
 
     // Get all questions that don't have isActive field set or are active
-    while (true) {
+    for (;;) {
       const questions = await ctx.db
         .query('questions')
         .filter((q) =>
