@@ -1,6 +1,7 @@
 import { v } from 'convex/values';
 import { internal } from './_generated/api';
-import { action, internalMutation } from './_generated/server';
+import type { Id } from './_generated/dataModel';
+import { action, internalMutation, query } from './_generated/server';
 
 // Type definitions to match schema
 type Difficulty = 'Easy' | 'Medium' | 'Hard';
@@ -183,5 +184,93 @@ export const resetQuestions = action({
   handler: async (ctx) => {
     await ctx.runMutation(internal.importQuestions.clearAllQuestions, {});
     return 0;
+  },
+});
+
+export const getRandomQuestionsByDomain = query({
+  args: {
+    questionsPerDomain: v.optional(v.number()), // defaults to 5
+  },
+  returns: v.object({
+    byDomain: v.record(
+      v.string(),
+      v.array(
+        v.object({
+          _id: v.id('questions'),
+          questionId: v.string(),
+          subject: v.union(v.literal('Reading and Writing'), v.literal('Math')),
+          domain: v.string(),
+          skill: v.string(),
+          difficulty: v.union(
+            v.literal('Easy'),
+            v.literal('Medium'),
+            v.literal('Hard')
+          ),
+        })
+      )
+    ),
+    totalQuestions: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    const perDomain = args.questionsPerDomain ?? 5;
+
+    const domains = [
+      // Math domains
+      'Algebra',
+      'Advanced Math',
+      'Problem-Solving and Data Analysis',
+      'Geometry and Trigonometry',
+      // English domains
+      'Information and Ideas',
+      'Craft and Structure',
+      'Expression of Ideas',
+      'Standard English Conventions',
+    ];
+
+    const byDomain: Record<
+      string,
+      Array<{
+        _id: Id<'questions'>;
+        questionId: string;
+        subject: 'Reading and Writing' | 'Math';
+        domain: Domain;
+        skill: string;
+        difficulty: 'Easy' | 'Medium' | 'Hard';
+      }>
+    > = {};
+    let totalQuestions = 0;
+
+    for (const domain of domains) {
+      // Query all questions for this domain
+      const questions = await ctx.db
+        .query('questions')
+        .withIndex('by_domain', (q) => q.eq('domain', domain as Domain))
+        .collect();
+
+      // Shuffle using Fisher-Yates algorithm
+      const shuffled = [...questions];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      // Take the first N questions
+      const selected = shuffled.slice(0, perDomain).map((q) => ({
+        _id: q._id,
+        questionId: q.questionId,
+        subject: q.subject,
+        domain: q.domain,
+        skill: q.skill,
+        difficulty: q.difficulty,
+      }));
+
+      byDomain[domain] = selected;
+      totalQuestions += selected.length;
+    }
+
+    return {
+      byDomain,
+      totalQuestions,
+    };
   },
 });
