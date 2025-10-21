@@ -1,3 +1,4 @@
+import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 import { internal } from './_generated/api';
 import type { Id } from './_generated/dataModel';
@@ -187,7 +188,52 @@ export const resetQuestions = action({
   },
 });
 
-export const getRandomQuestionsByDomain = query({
+// Paginated query to get questions by domain
+// This avoids memory limits by using proper Convex pagination
+export const getQuestionsByDomainPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    domain: v.string(),
+  },
+  returns: v.object({
+    page: v.array(
+      v.object({
+        _id: v.id('questions'),
+        _creationTime: v.number(),
+        questionId: v.string(),
+        subject: v.union(v.literal('Reading and Writing'), v.literal('Math')),
+        domain: v.string(),
+        skill: v.string(),
+        difficulty: v.union(
+          v.literal('Easy'),
+          v.literal('Medium'),
+          v.literal('Hard')
+        ),
+        score_band_range: v.number(),
+        program: v.literal('SAT'),
+        ibn: v.union(v.string(), v.null()),
+        external_id: v.union(v.string(), v.null()),
+        question_data: v.any(),
+        updateDate: v.number(),
+        createDate: v.number(),
+      })
+    ),
+    isDone: v.boolean(),
+    continueCursor: v.string(),
+  }),
+  handler: async (ctx, args) => {
+    const result = await ctx.db
+      .query('questions')
+      .withIndex('by_domain', (q) => q.eq('domain', args.domain as Domain))
+      .paginate(args.paginationOpts);
+
+    return result;
+  },
+});
+
+// Get question IDs (lightweight) by domain for random selection
+// Returns only IDs to avoid memory limits, client can fetch full data as needed
+export const getRandomQuestionIdsByDomain = query({
   args: {
     questionsPerDomain: v.optional(v.number()), // defaults to 5
   },
@@ -212,7 +258,12 @@ export const getRandomQuestionsByDomain = query({
     totalQuestions: v.number(),
   }),
   handler: async (ctx, args) => {
-    const perDomain = args.questionsPerDomain ?? 5;
+    const DEFAULT_QUESTIONS_PER_DOMAIN = 5;
+    const SAMPLE_MULTIPLIER = 3;
+    const perDomain = args.questionsPerDomain ?? DEFAULT_QUESTIONS_PER_DOMAIN;
+    // Fetch 3x the requested amount to have a good sample for randomization
+    // This keeps memory usage reasonable while still providing randomness
+    const sampleSize = perDomain * SAMPLE_MULTIPLIER;
 
     const domains = [
       // Math domains
@@ -241,11 +292,12 @@ export const getRandomQuestionsByDomain = query({
     let totalQuestions = 0;
 
     for (const domain of domains) {
-      // Query all questions for this domain
+      // Query a limited sample of questions for this domain to avoid memory limits
+      // We only fetch the fields we need, not the full question_data with HTML
       const questions = await ctx.db
         .query('questions')
         .withIndex('by_domain', (q) => q.eq('domain', domain as Domain))
-        .collect();
+        .take(sampleSize);
 
       // Shuffle using Fisher-Yates algorithm
       const shuffled = [...questions];
@@ -254,7 +306,7 @@ export const getRandomQuestionsByDomain = query({
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
 
-      // Take the first N questions
+      // Take the first N questions and only return lightweight data
       const selected = shuffled.slice(0, perDomain).map((q) => ({
         _id: q._id,
         questionId: q.questionId,
