@@ -2,6 +2,7 @@
 
 import { useExam } from './exam-context';
 import { FeedbackPanel } from './feedback-panel';
+import { HtmlMath } from './math-html';
 import { McqQuestion } from './mcq-question';
 import { SprQuestion } from './spr-question';
 
@@ -24,16 +25,20 @@ export function QuestionDisplay() {
         <div className="prose prose-sm max-w-none">
           {'stimulus' in currentQuestion && currentQuestion.stimulus && (
             <div className="mb-6 text-foreground">
-              {currentQuestion.stimulus}
+              <HtmlMath html={currentQuestion.stimulus} />
             </div>
           )}
           {'body' in currentQuestion && currentQuestion.body && (
-            <div className="mb-6 text-foreground">{currentQuestion.body}</div>
+            <div className="mb-6 text-foreground">
+              <HtmlMath html={currentQuestion.body} />
+            </div>
           )}
           <p className="text-foreground leading-relaxed">
-            {'stem' in currentQuestion
-              ? currentQuestion.stem
-              : currentQuestion.prompt}
+            {'stem' in currentQuestion ? (
+              <HtmlMath html={currentQuestion.stem} />
+            ) : (
+              <HtmlMath html={currentQuestion.prompt} />
+            )}
           </p>
         </div>
       </div>

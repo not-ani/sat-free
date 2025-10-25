@@ -7,7 +7,7 @@
     "dev:frontend": "next dev --turbopack",
     "dev:backend": "convex dev",
     "predev": "convex dev --until-success && convex dev --once --run-sh \"node setup.mjs --once\"",
-    "build": "next build --turbopack",
+    "build": "next build ",
     "start": "next start",
     "lint": "next lint",
     "mark-inactive": "tsx write.ts"

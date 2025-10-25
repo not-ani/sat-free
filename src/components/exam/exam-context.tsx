@@ -95,6 +95,7 @@ type ToolMode = 'none' | 'highlight' | 'eliminate';
 type ExamContextType = {
   questions: QuestionData[];
   currentQuestionIndex: number;
+  currentQuestionId: string;
   selectedAnswer: string | null;
   sprInput: string;
   eliminatedOptions: Set<string>;
@@ -163,7 +164,6 @@ export function ExamProvider({
     const currentQuestion = questions[currentQuestionIndex];
 
     if ('type' in currentQuestion) {
-      // ID-style question
       if (currentQuestion.type === 'mcq') {
         const isCorrect = selectedAnswer
           ? currentQuestion.correct_answer.includes(selectedAnswer)
@@ -248,6 +248,7 @@ export function ExamProvider({
       value={{
         questions,
         currentQuestionIndex,
+        currentQuestionId: questions[currentQuestionIndex].externalid,
         selectedAnswer,
         sprInput,
         eliminatedOptions,

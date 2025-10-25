@@ -52,6 +52,7 @@ const QuestionInput = v.object({
   questionId: v.string(),
   score_band_range: v.number(),
   skill: v.string(),
+  isActive: v.optional(v.boolean()),
   program: v.string(),
   subject: v.string(),
   domain: v.string(),
@@ -150,13 +151,17 @@ export const insertQuestion = internalMutation({
       ibn: args.ibn,
       external_id: args.external_id,
       difficulty: args.difficulty as Difficulty,
-      question_data: args.question_data,
       updateDate: args.updateDate,
       createDate: args.createDate,
     };
 
     // Insert the question
     const insertedId = await ctx.db.insert('questions', questionData);
+
+    await ctx.db.insert('questions_data', {
+      question_data: args.question_data,
+      questionId: insertedId,
+    });
     return { result: insertedId, skipped: false };
   },
 });
@@ -186,35 +191,92 @@ export const resetQuestions = action({
   },
 });
 
+// Helper type for selected questions
+type SelectedQuestion = {
+  _id: Id<'questions'>;
+  questionId: string;
+  subject: 'Reading and Writing' | 'Math';
+  domain: Domain;
+  skill: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+};
+
+// Helper function to shuffle an array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+// Helper function to group questions by subject, skill, and difficulty
+function groupQuestionsByCombination(questions: any[]): Record<string, any[]> {
+  const grouped: Record<string, any[]> = {};
+
+  for (const q of questions) {
+    const key = `${q.subject}|${q.skill}|${q.difficulty}`;
+    if (!grouped[key]) {
+      grouped[key] = [];
+    }
+    grouped[key].push(q);
+  }
+
+  return grouped;
+}
+
+// Helper function to select minimum questions from each group
+function selectMinFromEachGroup(
+  groupedQuestions: Record<string, any[]>,
+  minPerCombination: number
+): any[] {
+  const selected: any[] = [];
+
+  for (const group of Object.values(groupedQuestions)) {
+    const shuffled = shuffleArray(group);
+    const toTake = Math.min(minPerCombination, shuffled.length);
+    selected.push(...shuffled.slice(0, toTake));
+  }
+
+  return selected;
+}
+
+// Helper function to fill remaining quota with random questions
+function fillRemainingQuota(
+  allQuestions: any[],
+  selected: any[],
+  perDomain: number
+): any[] {
+  const result = [...selected];
+
+  if (result.length >= perDomain) {
+    return result;
+  }
+
+  const remaining = allQuestions.filter(
+    (q) => !selected.some((s) => s._id === q._id)
+  );
+
+  const shuffled = shuffleArray(remaining);
+  const needed = perDomain - result.length;
+  result.push(...shuffled.slice(0, needed));
+
+  return result;
+}
+
 export const getRandomQuestionIdsByDomain = query({
   args: {
-    questionsPerDomain: v.optional(v.number()), // defaults to 5
+    questionsPerDomain: v.optional(v.number()),
+    minPerCombination: v.optional(v.number()),
   },
-  returns: v.object({
-    byDomain: v.record(
-      v.string(),
-      v.array(
-        v.object({
-          _id: v.id('questions'),
-          questionId: v.string(),
-          subject: v.union(v.literal('Reading and Writing'), v.literal('Math')),
-          domain: v.string(),
-          skill: v.string(),
-          difficulty: v.union(
-            v.literal('Easy'),
-            v.literal('Medium'),
-            v.literal('Hard')
-          ),
-        })
-      )
-    ),
-    totalQuestions: v.number(),
-  }),
   handler: async (ctx, args) => {
+    const DEFAULT_MIN_PER_COMBINATION = 2;
     const DEFAULT_QUESTIONS_PER_DOMAIN = 5;
-    const SAMPLE_MULTIPLIER = 3;
+
+    const minPerCombination =
+      args.minPerCombination ?? DEFAULT_MIN_PER_COMBINATION;
     const perDomain = args.questionsPerDomain ?? DEFAULT_QUESTIONS_PER_DOMAIN;
-    const sampleSize = perDomain * SAMPLE_MULTIPLIER;
 
     const domains = [
       'Algebra',
@@ -227,47 +289,37 @@ export const getRandomQuestionIdsByDomain = query({
       'Standard English Conventions',
     ];
 
-    const byDomain: Record<
-      string,
-      Array<{
-        _id: Id<'questions'>;
-        questionId: string;
-        subject: 'Reading and Writing' | 'Math';
-        domain: Domain;
-        skill: string;
-        difficulty: 'Easy' | 'Medium' | 'Hard';
-      }>
-    > = {};
+    const byDomain: Record<string, any[]> = {};
     let totalQuestions = 0;
 
     for (const domain of domains) {
-      const questions = await ctx.db
+      const allQuestions = await ctx.db
         .query('questions')
         .withIndex('by_domain', (q) => q.eq('domain', domain as Domain))
-        .take(sampleSize);
+        .collect();
 
-      const shuffled = [...questions];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
+      const mappedQuestions = allQuestions.map(
+        ({ _id, _creationTime, ...rest }) => rest
+      );
 
-      const selected = shuffled.slice(0, perDomain).map((q) => ({
-        _id: q._id,
-        questionId: q.questionId,
-        subject: q.subject,
-        domain: q.domain,
-        skill: q.skill,
-        difficulty: q.difficulty,
-      }));
+      const groupedQuestions = groupQuestionsByCombination(mappedQuestions);
+      const selectedFromGroups = selectMinFromEachGroup(
+        groupedQuestions,
+        minPerCombination
+      );
+      const finalSelection = fillRemainingQuota(
+        mappedQuestions,
+        selectedFromGroups,
+        perDomain
+      );
 
-      byDomain[domain] = selected;
-      totalQuestions += selected.length;
+      byDomain[domain] = finalSelection;
+      totalQuestions += finalSelection.length;
     }
 
+    const allQuestions = Object.values(byDomain).flat();
     return {
-      byDomain,
-      totalQuestions,
+      questions: allQuestions,
     };
   },
 });

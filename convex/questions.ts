@@ -272,22 +272,7 @@ export const count = query({
 
 export const getByQuestionId = query({
   args: { questionId: v.string() },
-  returns: v.union(
-    v.object({
-      _id: v.id('questions'),
-      questionId: v.string(),
-      program: v.string(),
-      subject: v.string(),
-      domain: v.string(),
-      difficulty: v.string(),
-      skill: v.string(),
-      ibn: v.union(v.string(), v.null()),
-      external_id: v.union(v.string(), v.null()),
-      createDate: v.number(),
-      updateDate: v.number(),
-    }),
-    v.null()
-  ),
+
   handler: async (ctx, args) => {
     const doc = await ctx.db
       .query('questions')

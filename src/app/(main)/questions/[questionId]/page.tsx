@@ -1,26 +1,37 @@
-import { ExamProvider } from '@/components/exam/exam-context';
-import { ExamInterface } from '@/components/exam/exam-interface';
+import { api } from '@convex/_generated/api';
+import { fetchQuery } from 'convex/nextjs';
+import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
+import { ExamHeader } from '@/components/question-render/exam-header';
+import { QuestionNavigator } from '../QuestionNavigator';
 
-export default function QuestionDetailPage() {
-  const question = {
-    type: 'mcq' as const,
-    stem: "In recommending Bao Phi's collection Song I Sing, a librarian noted that pieces by the spoken-word poet don't lose their _____ nature when printed: the language has the same pleasant musical quality on the page as it does when performed by Phi.",
-    answerOptions: [
-      { id: 'A', content: 'scholarly' },
-      { id: 'B', content: 'melodic' },
-      { id: 'C', content: 'jarring' },
-      { id: 'D', content: 'personal' },
-    ],
-    correct_answer: ['B'],
-    rationale:
-      "The correct answer is 'melodic' because the passage describes the language as having a 'pleasant musical quality,' which directly relates to melodic characteristics.",
-    externalid: 'q1',
-    keys: ['vocabulary', 'context-clues'],
-  };
+export default async function QuestionDetailPage({
+  params,
+}: {
+  params: Promise<{ questionId: string }>;
+}) {
+  const { questionId } = await params;
+
+  const question = await fetchQuery(api.questions.getByQuestionId, {
+    questionId: decodeURIComponent(questionId),
+  });
+  if (!question) {
+    return notFound();
+  }
+
+  const QuestionWithRecorder = dynamic(() => import('../QuestionWithRecorder'));
 
   return (
-    <ExamProvider questions={[question]}>
-      <ExamInterface />
-    </ExamProvider>
+    <div className="flex min-h-[90svh] flex-col bg-background p-5">
+      {' '}
+      <ExamHeader questionId={question.questionId} />
+      <div className="flex-1 overflow-hidden">
+        <QuestionWithRecorder
+          questionData={question.question_data}
+          questionId={question.questionId}
+        />
+      </div>
+      <QuestionNavigator currentQuestionId={question.questionId} />
+    </div>
   );
 }

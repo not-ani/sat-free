@@ -4,6 +4,7 @@ import { Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useExam } from './exam-context';
+import { HtmlMath } from './math-html';
 
 export function McqQuestion() {
   const {
@@ -73,10 +74,13 @@ export function McqQuestion() {
           const isSelected = selectedAnswer === option.id;
 
           return (
-            <div className="relative flex items-center gap-2" key={option.id}>
+            <div
+              className="relative flex items-center gap-2 bg-transparent"
+              key={option.id}
+            >
               <Button
                 className={cn(
-                  'relative flex flex-1 items-start gap-3 rounded-lg border-2 p-4 text-left transition-all',
+                  'relative flex h-full flex-1 items-start gap-3 rounded-lg border-2 bg-transparent p-4 text-left transition-all',
                   isSelected && !isEliminated && 'border-foreground bg-accent',
                   !isSelected && 'border-border hover:border-muted-foreground',
                   isEliminated && 'border-muted bg-muted/30'
@@ -85,22 +89,11 @@ export function McqQuestion() {
               >
                 <div
                   className={cn(
-                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 font-medium text-sm',
-                    isSelected && !isEliminated
-                      ? 'border-foreground bg-foreground text-background'
-                      : 'border-muted-foreground text-muted-foreground',
-                    isEliminated && 'opacity-50'
-                  )}
-                >
-                  {option.id}
-                </div>
-                <div
-                  className={cn(
                     'flex-1 pt-0.5 text-foreground',
                     isEliminated && 'text-muted-foreground line-through'
                   )}
                 >
-                  {option.content}
+                  <HtmlMath html={option.content} />
                 </div>
               </Button>
 

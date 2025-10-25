@@ -1,13 +1,13 @@
 'use client';
 
+import { ExamHeader } from '../question-render/exam-header';
 import { ExamFooter } from './exam-footer';
-import { ExamHeader } from './exam-header';
 import { QuestionDisplay } from './question-display';
 
-export function ExamInterface() {
+export function ExamInterface({ questionId }: { questionId: string }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <ExamHeader />
+      <ExamHeader questionId={questionId} />
       <div className="flex-1 overflow-hidden">
         <QuestionDisplay />
       </div>

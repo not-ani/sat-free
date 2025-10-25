@@ -3,10 +3,9 @@
 import { api } from '@convex/_generated/api';
 import { useMutation } from 'convex/react';
 import { toast } from 'sonner';
-import QuestionRenderer, {
-  type QuestionRendererProps,
-  type SubmissionResult,
-} from '@/components/QuestionRenderer';
+import { QuestionRenderer } from '@/components/question-render';
+import type { QuestionRendererProps } from '@/components/question-render/root';
+import type { SubmissionResult } from '@/components/question-render/types';
 
 export default function QuestionWithRecorder({
   questionId,
@@ -20,12 +19,8 @@ export default function QuestionWithRecorder({
   const handleSubmit = async (result: SubmissionResult) => {
     try {
       await recordAttempt({ questionId, result });
-      if (typeof (result as any)?.isCorrect === 'boolean') {
-        toast(
-          (result as any).isCorrect
-            ? 'Recorded: Correct'
-            : 'Recorded: Incorrect'
-        );
+      if (typeof result?.isCorrect === 'boolean') {
+        toast(result.isCorrect ? 'Recorded: Correct' : 'Recorded: Incorrect');
       } else {
         toast('Recorded');
       }
