@@ -8,12 +8,34 @@ import { Pagination } from './pagination';
 import { TableView } from './table-view';
 import type { Column, Row } from './types';
 
+const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_PAGE = 1;
+const MAX_COUNT_THRESHOLD = 100;
+
+type SetQueryFn = (query: Partial<Filters>) => void;
+
+function appendArrayParams(qs: URLSearchParams, key: string, values: string[]) {
+  for (const value of values) {
+    qs.append(key, value);
+  }
+}
+
+function setBooleanParam(
+  qs: URLSearchParams,
+  key: string,
+  value: boolean | null | undefined
+) {
+  if (value) {
+    qs.set(key, '1');
+  }
+}
+
 export function QuestionTablesDataClient({
   filters,
   setQuery,
 }: {
   filters: Filters;
-  setQuery: (query: any) => void;
+  setQuery: SetQueryFn;
 }) {
   const [isPending, startTransition] = useTransition();
   const {
@@ -23,119 +45,109 @@ export function QuestionTablesDataClient({
     order,
     program,
     subject,
-    domain,
-    difficulty,
-    skill,
+    domains,
+    difficulties,
+    skills,
     ibnOnly,
     hasExternalId,
     onlyInactive,
     questionId,
   } = filters;
-  const data = useQuery(api.questions.list, {
-    page: page ?? 1,
-    pageSize: pageSize ?? 20,
-    sort: sort ?? 'updateDate',
-    order: order ?? 'desc',
-    filters: {
+  const queryFilters = useMemo(
+    () => ({
       program: program ?? undefined,
       subject: subject ?? undefined,
-      domain: domain ?? undefined,
-      difficulty: difficulty ?? undefined,
-      skill: skill ?? undefined,
+      domains: domains.length > 0 ? domains : undefined,
+      difficulties: difficulties.length > 0 ? difficulties : undefined,
+      skills: skills.length > 0 ? skills : undefined,
       ibnOnly: ibnOnly ?? undefined,
       hasExternalId: hasExternalId ?? undefined,
       onlyInactive: onlyInactive ?? undefined,
       questionId: questionId || undefined,
-    },
+    }),
+    [
+      program,
+      subject,
+      domains,
+      difficulties,
+      skills,
+      ibnOnly,
+      hasExternalId,
+      onlyInactive,
+      questionId,
+    ]
+  );
+
+  const currentPage = page ?? DEFAULT_PAGE;
+  const currentPageSize = pageSize ?? DEFAULT_PAGE_SIZE;
+
+  const data = useQuery(api.questions.list, {
+    page: currentPage,
+    pageSize: currentPageSize,
+    sort: sort ?? 'updateDate',
+    order: order ?? 'desc',
+    filters: queryFilters,
   });
+
   // Prefetch adjacent pages for snappy navigation
   const _prefetchNext = useQuery(api.questions.list, {
-    page: (page ?? 1) + 1,
-    pageSize: pageSize ?? 20,
+    page: currentPage + 1,
+    pageSize: currentPageSize,
     sort: sort ?? 'updateDate',
     order: order ?? 'desc',
-    filters: {
-      program: program ?? undefined,
-      subject: subject ?? undefined,
-      domain: domain ?? undefined,
-      difficulty: difficulty ?? undefined,
-      skill: skill ?? undefined,
-      ibnOnly: ibnOnly ?? undefined,
-      hasExternalId: hasExternalId ?? undefined,
-      onlyInactive: onlyInactive ?? undefined,
-    },
+    filters: queryFilters,
   });
+
   const _prefetchPrev = useQuery(api.questions.list, {
-    page: Math.max(1, (page ?? 1) - 1),
-    pageSize: pageSize ?? 20,
+    page: Math.max(DEFAULT_PAGE, currentPage - 1),
+    pageSize: currentPageSize,
     sort: sort ?? 'updateDate',
     order: order ?? 'desc',
-    filters: {
-      program: program ?? undefined,
-      subject: subject ?? undefined,
-      domain: domain ?? undefined,
-      difficulty: difficulty ?? undefined,
-      skill: skill ?? undefined,
-      ibnOnly: ibnOnly ?? undefined,
-      hasExternalId: hasExternalId ?? undefined,
-      onlyInactive: onlyInactive ?? undefined,
-    },
+    filters: queryFilters,
   });
+
   const totalCount = useQuery(api.questions.count, {
-    filters: {
-      program: program ?? undefined,
-      subject: subject ?? undefined,
-      domain: domain ?? undefined,
-      difficulty: difficulty ?? undefined,
-      skill: skill ?? undefined,
-      ibnOnly: ibnOnly ?? undefined,
-      hasExternalId: hasExternalId ?? undefined,
-      onlyInactive: onlyInactive ?? undefined,
-      questionId: questionId || undefined,
-    },
+    filters: queryFilters,
   });
 
   const baseQueryString = useMemo(() => {
     const qs = new URLSearchParams();
-    qs.set('page', String(page ?? 1));
-    qs.set('pageSize', String(pageSize ?? 20));
+
+    // Set pagination and sorting params
+    qs.set('page', String(currentPage));
+    qs.set('pageSize', String(currentPageSize));
     qs.set('sort', String(sort ?? 'updateDate'));
     qs.set('order', String(order ?? 'desc'));
+
+    // Set filter params
     if (program) {
       qs.set('program', program);
     }
     if (subject) {
       qs.set('subject', subject);
     }
-    if (domain) {
-      qs.set('domain', domain);
-    }
-    if (difficulty) {
-      qs.set('difficulty', difficulty);
-    }
-    if (skill) {
-      qs.set('skill', skill);
-    }
-    if (ibnOnly) {
-      qs.set('ibnOnly', '1');
-    }
-    if (hasExternalId) {
-      qs.set('hasExternalId', '1');
-    }
-    if (onlyInactive) {
-      qs.set('onlyInactive', '1');
-    }
+
+    // Append array params
+    appendArrayParams(qs, 'domains', domains);
+    appendArrayParams(qs, 'difficulties', difficulties);
+    appendArrayParams(qs, 'skills', skills);
+
+    // Set boolean flags
+    setBooleanParam(qs, 'ibnOnly', ibnOnly);
+    setBooleanParam(qs, 'hasExternalId', hasExternalId);
+    setBooleanParam(qs, 'onlyInactive', onlyInactive);
+
     return qs.toString();
   }, [
-    page,
-    pageSize,
+    currentPage,
+    currentPageSize,
     sort,
     order,
     program,
     subject,
-    domain,
-    difficulty,
-    skill,
+    domains,
+    difficulties,
+    skills,
     ibnOnly,
     hasExternalId,
     onlyInactive,
@@ -164,7 +176,7 @@ export function QuestionTablesDataClient({
   const changePage = useCallback(
     (next: number) => {
       startTransition(() => {
-        void setQuery({ page: next });
+        setQuery({ page: next });
       });
     },
     [setQuery]
@@ -187,7 +199,7 @@ export function QuestionTablesDataClient({
         totalLabel={
           totalCount === undefined
             ? '...'
-            : totalCount > 100
+            : totalCount > MAX_COUNT_THRESHOLD
               ? '100+'
               : String(totalCount)
         }

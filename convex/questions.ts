@@ -5,12 +5,15 @@ import {
   type Difficulty,
   type Domain,
   difficulty,
+  difficultyArray,
   domain,
+  domainArray,
   type Program,
   program as programValidator,
   type Skill,
   type Subject,
   skill,
+  skillArray,
   subject,
 } from './questionsFilters';
 
@@ -20,8 +23,11 @@ type Filters = {
   program?: Program;
   subject?: Subject;
   domain?: Domain;
+  domains?: Domain[];
   difficulty?: Difficulty;
+  difficulties?: Difficulty[];
   skill?: Skill;
+  skills?: Skill[];
   ibnOnly?: boolean;
   hasExternalId?: boolean;
   onlyInactive?: boolean;
@@ -46,8 +52,17 @@ async function handleQuestionIdLookup(
     (filters.program && doc.program !== filters.program) ||
     (filters.subject && doc.subject !== filters.subject) ||
     (filters.domain && doc.domain !== filters.domain) ||
+    (filters.domains &&
+      filters.domains.length > 0 &&
+      !filters.domains.includes(doc.domain)) ||
     (filters.difficulty && doc.difficulty !== filters.difficulty) ||
+    (filters.difficulties &&
+      filters.difficulties.length > 0 &&
+      !filters.difficulties.includes(doc.difficulty)) ||
     (filters.skill && doc.skill !== filters.skill) ||
+    (filters.skills &&
+      filters.skills.length > 0 &&
+      !filters.skills.includes(doc.skill)) ||
     (filters.onlyInactive && doc.isActive !== false) ||
     (filters.hasExternalId && doc.external_id === null) ||
     (filters.ibnOnly && doc.ibn === null)
@@ -59,19 +74,21 @@ async function handleQuestionIdLookup(
 }
 
 function buildBaseQuery(ctx: QueryCtx, filters: Filters) {
-  if (filters.skill) {
+  // For single-value filters, use indexes if available
+  // Array filters will be handled in applyFilters
+  if (filters.skill && !filters.skills) {
     const skillValue = filters.skill;
     return ctx.db
       .query('questions')
       .withIndex('by_skill', (q) => q.eq('skill', skillValue));
   }
-  if (filters.domain) {
+  if (filters.domain && !filters.domains) {
     const domainValue = filters.domain;
     return ctx.db
       .query('questions')
       .withIndex('by_domain', (q) => q.eq('domain', domainValue));
   }
-  if (filters.difficulty) {
+  if (filters.difficulty && !filters.difficulties) {
     const difficultyValue = filters.difficulty;
     return ctx.db
       .query('questions')
@@ -103,10 +120,34 @@ function applyFilters(
       q.eq(q.field('domain'), domainValue)
     );
   }
+  if (filters.domains && filters.domains.length > 0) {
+    const domainValues = filters.domains;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.or(...domainValues.map((d) => q.eq(q.field('domain'), d)))
+    );
+  }
   if (filters.difficulty) {
     const difficultyValue = filters.difficulty;
     filteredQuery = filteredQuery.filter((q) =>
       q.eq(q.field('difficulty'), difficultyValue)
+    );
+  }
+  if (filters.difficulties && filters.difficulties.length > 0) {
+    const difficultyValues = filters.difficulties;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.or(...difficultyValues.map((d) => q.eq(q.field('difficulty'), d)))
+    );
+  }
+  if (filters.skill) {
+    const skillValue = filters.skill;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.eq(q.field('skill'), skillValue)
+    );
+  }
+  if (filters.skills && filters.skills.length > 0) {
+    const skillValues = filters.skills;
+    filteredQuery = filteredQuery.filter((q) =>
+      q.or(...skillValues.map((s) => q.eq(q.field('skill'), s)))
     );
   }
   if (filters.program) {
@@ -142,8 +183,11 @@ export const list = query({
         program: v.optional(programValidator),
         subject: v.optional(subject),
         domain: v.optional(domain),
+        domains: v.optional(domainArray),
         difficulty: v.optional(difficulty),
+        difficulties: v.optional(difficultyArray),
         skill: v.optional(skill),
+        skills: v.optional(skillArray),
         ibnOnly: v.optional(v.boolean()),
         hasExternalId: v.optional(v.boolean()),
         onlyInactive: v.optional(v.boolean()),
@@ -231,8 +275,11 @@ export const count = query({
         program: v.optional(programValidator),
         subject: v.optional(subject),
         domain: v.optional(domain),
+        domains: v.optional(domainArray),
         difficulty: v.optional(difficulty),
+        difficulties: v.optional(difficultyArray),
         skill: v.optional(skill),
+        skills: v.optional(skillArray),
         ibnOnly: v.optional(v.boolean()),
         hasExternalId: v.optional(v.boolean()),
         onlyInactive: v.optional(v.boolean()),

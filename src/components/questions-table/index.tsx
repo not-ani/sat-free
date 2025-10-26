@@ -20,7 +20,14 @@ import { Filters } from './filters';
 export function QuestionsTableClient() {
   const [results, setQuery] = useQueryStates(filters);
 
-  const { program, subject, domain, difficulty, skill, onlyInactive } = results;
+  const {
+    program,
+    subject,
+    domains: selectedDomains,
+    difficulties: selectedDifficulties,
+    skills: selectedSkills,
+    onlyInactive,
+  } = results;
 
   const availableDomains = useMemo<Domain[]>(() => {
     if (!subject) {
@@ -30,23 +37,43 @@ export function QuestionsTableClient() {
   }, [subject]);
 
   const availableSkills = useMemo<Skill[]>(() => {
-    if (!domain) {
+    if (selectedDomains.length === 0) {
       return [...skills];
     }
-    return [...domainToSkills[domain]];
-  }, [domain]);
+    const skillsSet = new Set<Skill>();
+    for (const domain of selectedDomains) {
+      for (const skill of domainToSkills[domain]) {
+        skillsSet.add(skill);
+      }
+    }
+    return [...skillsSet];
+  }, [selectedDomains]);
 
   useEffect(() => {
-    if (subject && domain && !subjectToDomains[subject].has(domain)) {
-      void setQuery({ domain: null, skill: null, page: 1 });
+    if (subject && selectedDomains.length > 0) {
+      const validDomains = selectedDomains.filter((d) =>
+        subjectToDomains[subject].has(d)
+      );
+      if (validDomains.length !== selectedDomains.length) {
+        setQuery({ domains: validDomains, skills: [], page: 1 });
+      }
     }
-  }, [subject, domain, setQuery]);
+  }, [subject, selectedDomains, setQuery]);
 
   useEffect(() => {
-    if (domain && skill && !domainToSkills[domain].has(skill)) {
-      void setQuery({ skill: null, page: 1 });
+    if (selectedDomains.length > 0 && selectedSkills.length > 0) {
+      const validSkillsSet = new Set<Skill>();
+      for (const domain of selectedDomains) {
+        for (const skill of domainToSkills[domain]) {
+          validSkillsSet.add(skill);
+        }
+      }
+      const validSkills = selectedSkills.filter((s) => validSkillsSet.has(s));
+      if (validSkills.length !== selectedSkills.length) {
+        setQuery({ skills: validSkills, page: 1 });
+      }
     }
-  }, [domain, skill, setQuery]);
+  }, [selectedDomains, selectedSkills, setQuery]);
 
   // Hoist all handlers so Hooks order stays stable across loading and loaded renders
   const onProgramChange = useCallback(
@@ -58,32 +85,31 @@ export function QuestionsTableClient() {
     (v: string) =>
       setQuery({
         subject: v === '__all' ? null : (v as Subject),
-        domain: null,
-        skill: null,
+        domains: [],
+        skills: [],
         page: 1,
       }),
     [setQuery]
   );
-  const onDomainChange = useCallback(
-    (v: string) =>
+  const onDomainsChange = useCallback(
+    (values: string[]) =>
       setQuery({
-        domain: v === '__all' ? null : (v as Domain),
-        skill: null,
+        domains: values as Domain[],
+        skills: [],
         page: 1,
       }),
     [setQuery]
   );
-  const onDifficultyChange = useCallback(
-    (v: string) =>
+  const onDifficultiesChange = useCallback(
+    (values: string[]) =>
       setQuery({
-        difficulty: v === '__all' ? null : (v as Difficulty),
+        difficulties: values as Difficulty[],
         page: 1,
       }),
     [setQuery]
   );
-  const onSkillChange = useCallback(
-    (v: string) =>
-      setQuery({ skill: v === '__all' ? null : (v as Skill), page: 1 }),
+  const onSkillsChange = useCallback(
+    (values: string[]) => setQuery({ skills: values as Skill[], page: 1 }),
     [setQuery]
   );
   const onOnlyInactiveChange = useCallback(
@@ -97,17 +123,17 @@ export function QuestionsTableClient() {
       <Filters
         availableDomains={availableDomains}
         availableSkills={availableSkills}
-        difficulty={difficulty}
-        domain={domain}
-        onDifficultyChange={onDifficultyChange}
-        onDomainChange={onDomainChange}
+        difficulties={selectedDifficulties}
+        domains={selectedDomains}
+        onDifficultiesChange={onDifficultiesChange}
+        onDomainsChange={onDomainsChange}
         onlyInactive={onlyInactive}
         onOnlyInactiveChange={onOnlyInactiveChange}
         onProgramChange={onProgramChange}
-        onSkillChange={onSkillChange}
+        onSkillsChange={onSkillsChange}
         onSubjectChange={onSubjectChange}
         program={program}
-        skill={skill}
+        skills={selectedSkills}
         subject={subject}
       />
       <Suspense fallback={<div>Loading...</div>}>

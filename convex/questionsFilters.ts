@@ -197,3 +197,7 @@ export const difficulty = v.union(
   v.literal('Medium'),
   v.literal('Hard')
 );
+
+export const domainArray = v.array(domain);
+export const difficultyArray = v.array(difficulty);
+export const skillArray = v.array(skill);

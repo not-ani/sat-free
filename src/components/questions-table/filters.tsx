@@ -7,8 +7,10 @@ import type {
   Subject,
 } from '@convex/questionsFilters';
 import { difficulties, programs, subjects } from '@convex/questionsFilters';
+import { memo } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Select,
   SelectContent,
@@ -20,39 +22,52 @@ import {
 type FiltersProps = {
   program: Program | null | undefined;
   subject: Subject | null | undefined;
-  domain: Domain | null | undefined;
-  difficulty: Difficulty | null | undefined;
-  skill: Skill | null | undefined;
+  domains: Domain[];
+  difficulties: Difficulty[];
+  skills: Skill[];
   availableDomains: Domain[];
   availableSkills: Skill[];
   onlyInactive: boolean | null | undefined;
   onProgramChange: (value: string) => void;
   onSubjectChange: (value: string) => void;
-  onDomainChange: (value: string) => void;
-  onDifficultyChange: (value: string) => void;
-  onSkillChange: (value: string) => void;
+  onDomainsChange: (values: string[]) => void;
+  onDifficultiesChange: (values: string[]) => void;
+  onSkillsChange: (values: string[]) => void;
   onOnlyInactiveChange: (checked: boolean | 'indeterminate') => void;
 };
-
-import { memo } from 'react';
 
 function FiltersImpl(props: FiltersProps) {
   const {
     program,
     subject,
-    domain,
-    difficulty,
-    skill,
+    domains,
+    difficulties: selectedDifficulties,
+    skills: selectedSkills,
     availableDomains,
     availableSkills,
     onlyInactive,
     onProgramChange,
     onSubjectChange,
-    onDomainChange,
-    onDifficultyChange,
-    onSkillChange,
+    onDomainsChange,
+    onDifficultiesChange,
+    onSkillsChange,
     onOnlyInactiveChange,
   } = props;
+
+  const domainOptions = availableDomains.map((d) => ({
+    label: d,
+    value: d,
+  }));
+
+  const difficultyOptions = difficulties.map((d) => ({
+    label: d,
+    value: d,
+  }));
+
+  const skillOptions = availableSkills.map((s) => ({
+    label: s,
+    value: s,
+  }));
 
   return (
     <div className="flex flex-wrap items-end gap-3">
@@ -91,57 +106,36 @@ function FiltersImpl(props: FiltersProps) {
       </div>
 
       <div className="space-y-1">
-        <Label>Domain</Label>
-        <Select onValueChange={onDomainChange} value={domain ?? '__all'}>
-          <SelectTrigger className="w-[260px] border-muted-foreground">
-            <SelectValue placeholder="All" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all">All</SelectItem>
-            {availableDomains.map((d) => (
-              <SelectItem key={d} value={d}>
-                {d}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Label>Domains</Label>
+        <MultiSelect
+          className="w-[260px]"
+          defaultValue={domains}
+          onValueChange={onDomainsChange}
+          options={domainOptions}
+          placeholder="Select domains"
+        />
       </div>
 
       <div className="space-y-1">
-        <Label>Difficulty</Label>
-        <Select
-          onValueChange={onDifficultyChange}
-          value={difficulty ?? '__all'}
-        >
-          <SelectTrigger className="w-[160px] border-muted-foreground">
-            <SelectValue placeholder="All" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all">All</SelectItem>
-            {difficulties.map((d) => (
-              <SelectItem key={d} value={d}>
-                {d}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Label>Difficulties</Label>
+        <MultiSelect
+          className="w-[200px]"
+          defaultValue={selectedDifficulties}
+          onValueChange={onDifficultiesChange}
+          options={difficultyOptions}
+          placeholder="Select difficulties"
+        />
       </div>
 
       <div className="space-y-1">
-        <Label>Skill</Label>
-        <Select onValueChange={onSkillChange} value={skill ?? '__all'}>
-          <SelectTrigger className="w-[360px] border-muted-foreground">
-            <SelectValue placeholder="All" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all">All</SelectItem>
-            {availableSkills.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Label>Skills</Label>
+        <MultiSelect
+          className="w-[360px]"
+          defaultValue={selectedSkills}
+          onValueChange={onSkillsChange}
+          options={skillOptions}
+          placeholder="Select skills"
+        />
       </div>
 
       <div className="space-y-1">
