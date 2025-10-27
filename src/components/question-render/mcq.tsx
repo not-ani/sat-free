@@ -47,10 +47,21 @@ export function RenderMcq({
     const labels = opts.map((_, i) =>
       String.fromCharCode(A_CHAR_CODE + i).toUpperCase()
     );
-    const correctIds = new Set(q.correct_answer ?? []);
+
+    // Start with keys field if present (actual option IDs)
+    const correctOptionIds = new Set(q.keys ?? []);
+
+    // Also map letter labels from correct_answer to option IDs
     const correctLabels = new Set(
       (q.correct_answer ?? []).map((c) => c.trim().toLowerCase())
     );
+
+    // Add option IDs that match the letter labels
+    for (let i = 0; i < labels.length; i++) {
+      if (correctLabels.has(labels[i].toLowerCase())) {
+        correctOptionIds.add(opts[i].id);
+      }
+    }
 
     return {
       choices: opts.map((opt, i) => ({
@@ -58,12 +69,7 @@ export function RenderMcq({
         label: labels[i],
         content: opt.content,
       })),
-      correctSet: new Set([
-        ...Array.from(correctIds),
-        ...labels
-          .filter((_, i) => correctLabels.has(labels[i].toLowerCase()))
-          .map((_, i) => opts[i].id),
-      ]),
+      correctSet: correctOptionIds,
       rationale: q.rationale,
     };
   }, [q, isIbnMcq]);
